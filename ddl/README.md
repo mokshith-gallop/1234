@@ -100,8 +100,8 @@ All 45 staging tables: `OPTIONS(partition_expiration_days=90)` — 90-day TTL.
 | Group | Source Partition | Target |
 |-------|----------------|--------|
 | Dims (9) | None | No partition, no cluster |
-| Facts (9) | `date_key INT` or `(date_key INT, channel STRING)` or `period_month STRING` | Add `_partition_date DATE`, `PARTITION BY _partition_date`. Original partition cols kept as regular columns |
-| Aggs (7) | `date_key INT` or `week_start_key INT` or `period_month STRING` | Add `_partition_date DATE`, `PARTITION BY _partition_date` |
+| Facts (9) | `date_key INT` or `(date_key INT, channel STRING)` or `period_month STRING` | Add `partition_date DATE`, `PARTITION BY partition_date`. Original partition cols kept as regular columns |
+| Aggs (7) | `date_key INT` or `week_start_key INT` or `period_month STRING` | Add `partition_date DATE`, `PARTITION BY partition_date` |
 
 Special: `fact_interaction` — `CLUSTER BY (channel, agent_sk)` from collapsed multi-col partition + bucketing.
 

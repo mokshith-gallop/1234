@@ -346,9 +346,9 @@ suites:
     - name: channel
       type: STRING
       source_type: STRING
-    - name: _partition_date
+    - name: partition_date
       type: DATE
-    partition_by: _partition_date
+    partition_by: partition_date
     cluster_by:
     - channel
     - agent_sk
@@ -377,9 +377,9 @@ suites:
     - name: date_key
       type: INT64
       source_type: INT
-    - name: _partition_date
+    - name: partition_date
       type: DATE
-    partition_by: _partition_date
+    partition_by: partition_date
   - table: fact_queue_interval
     source_table: fact_queue_interval
     expect_object_type: TABLE
@@ -416,9 +416,9 @@ suites:
     - name: date_key
       type: INT64
       source_type: INT
-    - name: _partition_date
+    - name: partition_date
       type: DATE
-    partition_by: _partition_date
+    partition_by: partition_date
   - table: fact_csat_survey
     source_table: fact_csat_survey
     expect_object_type: TABLE
@@ -453,9 +453,9 @@ suites:
     - name: date_key
       type: INT64
       source_type: INT
-    - name: _partition_date
+    - name: partition_date
       type: DATE
-    partition_by: _partition_date
+    partition_by: partition_date
   - table: fact_qa_evaluation
     source_table: fact_qa_evaluation
     expect_object_type: TABLE
@@ -491,9 +491,9 @@ suites:
     - name: date_key
       type: INT64
       source_type: INT
-    - name: _partition_date
+    - name: partition_date
       type: DATE
-    partition_by: _partition_date
+    partition_by: partition_date
   - table: fact_billing_line
     source_table: fact_billing_line
     expect_object_type: TABLE
@@ -534,9 +534,9 @@ suites:
     - name: period_month
       type: STRING
       source_type: STRING
-    - name: _partition_date
+    - name: partition_date
       type: DATE
-    partition_by: _partition_date
+    partition_by: partition_date
   - table: fact_adherence_daily
     source_table: fact_adherence_daily
     expect_object_type: TABLE
@@ -567,9 +567,9 @@ suites:
     - name: date_key
       type: INT64
       source_type: INT
-    - name: _partition_date
+    - name: partition_date
       type: DATE
-    partition_by: _partition_date
+    partition_by: partition_date
   - table: fact_ticket
     source_table: fact_ticket
     expect_object_type: TABLE
@@ -610,9 +610,9 @@ suites:
     - name: date_key
       type: INT64
       source_type: INT
-    - name: _partition_date
+    - name: partition_date
       type: DATE
-    partition_by: _partition_date
+    partition_by: partition_date
   - table: fact_ivr_path
     source_table: fact_ivr_path
     expect_object_type: TABLE
@@ -641,9 +641,9 @@ suites:
     - name: date_key
       type: INT64
       source_type: INT
-    - name: _partition_date
+    - name: partition_date
       type: DATE
-    partition_by: _partition_date
+    partition_by: partition_date
   - table: agg_agent_daily
     source_table: agg_agent_daily
     expect_object_type: TABLE
@@ -681,9 +681,9 @@ suites:
     - name: date_key
       type: INT64
       source_type: INT
-    - name: _partition_date
+    - name: partition_date
       type: DATE
-    partition_by: _partition_date
+    partition_by: partition_date
   - table: agg_agent_weekly
     source_table: agg_agent_weekly
     expect_object_type: TABLE
@@ -715,9 +715,9 @@ suites:
     - name: week_start_key
       type: INT64
       source_type: INT
-    - name: _partition_date
+    - name: partition_date
       type: DATE
-    partition_by: _partition_date
+    partition_by: partition_date
   - table: agg_program_monthly
     source_table: agg_program_monthly
     expect_object_type: TABLE
@@ -752,9 +752,9 @@ suites:
     - name: period_month
       type: STRING
       source_type: STRING
-    - name: _partition_date
+    - name: partition_date
       type: DATE
-    partition_by: _partition_date
+    partition_by: partition_date
   - table: agg_queue_hourly
     source_table: agg_queue_hourly
     expect_object_type: TABLE
@@ -788,9 +788,9 @@ suites:
     - name: date_key
       type: INT64
       source_type: INT
-    - name: _partition_date
+    - name: partition_date
       type: DATE
-    partition_by: _partition_date
+    partition_by: partition_date
   - table: agg_csat_rollup_monthly
     source_table: agg_csat_rollup_monthly
     expect_object_type: TABLE
@@ -825,9 +825,9 @@ suites:
     - name: period_month
       type: STRING
       source_type: STRING
-    - name: _partition_date
+    - name: partition_date
       type: DATE
-    partition_by: _partition_date
+    partition_by: partition_date
   - table: agg_billing_monthly
     source_table: agg_billing_monthly
     expect_object_type: TABLE
@@ -857,9 +857,9 @@ suites:
     - name: period_month
       type: STRING
       source_type: STRING
-    - name: _partition_date
+    - name: partition_date
       type: DATE
-    partition_by: _partition_date
+    partition_by: partition_date
   - table: agg_site_daily
     source_table: agg_site_daily
     expect_object_type: TABLE
@@ -888,9 +888,9 @@ suites:
     - name: date_key
       type: INT64
       source_type: INT
-    - name: _partition_date
+    - name: partition_date
       type: DATE
-    partition_by: _partition_date
+    partition_by: partition_date
   - table: vw_org_hierarchy
     expect_object_type: VIEW
     columns:

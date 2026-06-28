@@ -2,7 +2,7 @@
 -- 04-dm-tables.sql — BigQuery DDL for DM layer (25 tables)
 -- 9 dimensions (unpartitioned) + 9 facts + 7 aggregates
 -- INT date_key / week_start_key / STRING period_month converted to
--- _partition_date DATE (synthetic column). Bucketing -> CLUSTER BY.
+-- partition_date DATE (synthetic column). Bucketing -> CLUSTER BY.
 -- ---------------------------------------------------------------------------
 
 -- === Dimensions (9) ===
@@ -140,9 +140,9 @@ CREATE TABLE IF NOT EXISTS fact_interaction (
   source_system                 STRING,
   date_key                      INT64,
   channel                       STRING,
-  _partition_date               DATE
+  partition_date                DATE
 )
-PARTITION BY _partition_date
+PARTITION BY partition_date
 CLUSTER BY channel, agent_sk;
 
 
@@ -154,9 +154,9 @@ CREATE TABLE IF NOT EXISTS fact_agent_activity (
   first_state_ts                TIMESTAMP,
   last_state_ts                 TIMESTAMP,
   date_key                      INT64,
-  _partition_date               DATE
+  partition_date                DATE
 )
-PARTITION BY _partition_date;
+PARTITION BY partition_date;
 
 
 CREATE TABLE IF NOT EXISTS fact_queue_interval (
@@ -170,9 +170,9 @@ CREATE TABLE IF NOT EXISTS fact_queue_interval (
   avg_speed_answer_sec          NUMERIC(8,2),
   avg_handle_sec                NUMERIC(8,2),
   date_key                      INT64,
-  _partition_date               DATE
+  partition_date                DATE
 )
-PARTITION BY _partition_date;
+PARTITION BY partition_date;
 
 
 CREATE TABLE IF NOT EXISTS fact_csat_survey (
@@ -186,9 +186,9 @@ CREATE TABLE IF NOT EXISTS fact_csat_survey (
   nps_score                     INT64,
   fcr_claimed                   BOOL,
   date_key                      INT64,
-  _partition_date               DATE
+  partition_date                DATE
 )
-PARTITION BY _partition_date;
+PARTITION BY partition_date;
 
 
 CREATE TABLE IF NOT EXISTS fact_qa_evaluation (
@@ -202,9 +202,9 @@ CREATE TABLE IF NOT EXISTS fact_qa_evaluation (
   overall_pct                   NUMERIC(5,2),
   auto_fail                     BOOL,
   date_key                      INT64,
-  _partition_date               DATE
+  partition_date                DATE
 )
-PARTITION BY _partition_date;
+PARTITION BY partition_date;
 
 
 CREATE TABLE IF NOT EXISTS fact_billing_line (
@@ -219,9 +219,9 @@ CREATE TABLE IF NOT EXISTS fact_billing_line (
   adjustment_flag               BOOL,
   invoice_status                STRING,
   period_month                  STRING,
-  _partition_date               DATE
+  partition_date                DATE
 )
-PARTITION BY _partition_date;
+PARTITION BY partition_date;
 
 
 CREATE TABLE IF NOT EXISTS fact_adherence_daily (
@@ -233,9 +233,9 @@ CREATE TABLE IF NOT EXISTS fact_adherence_daily (
   adherence_pct                 NUMERIC(5,2),
   occupancy_pct                 NUMERIC(5,2),
   date_key                      INT64,
-  _partition_date               DATE
+  partition_date                DATE
 )
-PARTITION BY _partition_date;
+PARTITION BY partition_date;
 
 
 CREATE TABLE IF NOT EXISTS fact_ticket (
@@ -251,9 +251,9 @@ CREATE TABLE IF NOT EXISTS fact_ticket (
   sla_breached_flag             BOOL,
   touch_count                   INT64,
   date_key                      INT64,
-  _partition_date               DATE
+  partition_date                DATE
 )
-PARTITION BY _partition_date;
+PARTITION BY partition_date;
 
 
 CREATE TABLE IF NOT EXISTS fact_ivr_path (
@@ -265,9 +265,9 @@ CREATE TABLE IF NOT EXISTS fact_ivr_path (
   exit_key                      STRING,
   duration_seconds              INT64,
   date_key                      INT64,
-  _partition_date               DATE
+  partition_date                DATE
 )
-PARTITION BY _partition_date;
+PARTITION BY partition_date;
 
 
 -- === Aggregates (7) ===
@@ -283,9 +283,9 @@ CREATE TABLE IF NOT EXISTS agg_agent_daily (
   adherence_pct                 NUMERIC(5,2),
   occupancy_pct                 NUMERIC(5,2),
   date_key                      INT64,
-  _partition_date               DATE
+  partition_date                DATE
 )
-PARTITION BY _partition_date;
+PARTITION BY partition_date;
 
 
 CREATE TABLE IF NOT EXISTS agg_agent_weekly (
@@ -297,9 +297,9 @@ CREATE TABLE IF NOT EXISTS agg_agent_weekly (
   adherence_pct                 NUMERIC(5,2),
   occupancy_pct                 NUMERIC(5,2),
   week_start_key                INT64,
-  _partition_date               DATE
+  partition_date                DATE
 )
-PARTITION BY _partition_date;
+PARTITION BY partition_date;
 
 
 CREATE TABLE IF NOT EXISTS agg_program_monthly (
@@ -312,9 +312,9 @@ CREATE TABLE IF NOT EXISTS agg_program_monthly (
   billed_amount                 NUMERIC(14,2),
   grouping_level                INT64,
   period_month                  STRING,
-  _partition_date               DATE
+  partition_date                DATE
 )
-PARTITION BY _partition_date;
+PARTITION BY partition_date;
 
 
 CREATE TABLE IF NOT EXISTS agg_queue_hourly (
@@ -327,9 +327,9 @@ CREATE TABLE IF NOT EXISTS agg_queue_hourly (
   forecast_volume               INT64,
   volume_variance_pct           NUMERIC(7,2),
   date_key                      INT64,
-  _partition_date               DATE
+  partition_date                DATE
 )
-PARTITION BY _partition_date;
+PARTITION BY partition_date;
 
 
 CREATE TABLE IF NOT EXISTS agg_csat_rollup_monthly (
@@ -342,9 +342,9 @@ CREATE TABLE IF NOT EXISTS agg_csat_rollup_monthly (
   pct_detractors                NUMERIC(5,2),
   grouping_id                   INT64,
   period_month                  STRING,
-  _partition_date               DATE
+  partition_date                DATE
 )
-PARTITION BY _partition_date;
+PARTITION BY partition_date;
 
 
 CREATE TABLE IF NOT EXISTS agg_billing_monthly (
@@ -355,9 +355,9 @@ CREATE TABLE IF NOT EXISTS agg_billing_monthly (
   telco_cost_amount             NUMERIC(12,2),
   net_revenue                   NUMERIC(14,2),
   period_month                  STRING,
-  _partition_date               DATE
+  partition_date                DATE
 )
-PARTITION BY _partition_date;
+PARTITION BY partition_date;
 
 
 CREATE TABLE IF NOT EXISTS agg_site_daily (
@@ -368,7 +368,7 @@ CREATE TABLE IF NOT EXISTS agg_site_daily (
   sl_pct                        NUMERIC(5,2),
   adherence_pct                 NUMERIC(5,2),
   date_key                      INT64,
-  _partition_date               DATE
+  partition_date                DATE
 )
-PARTITION BY _partition_date;
+PARTITION BY partition_date;
 

@@ -384,7 +384,7 @@ suites:
   - id: "tier-dm-join"
     mode: measure
     sql: "SELECT d.date_key, f.interaction_id FROM `${GCP_PROJECT}.${BUILD_DATASET}.fact_interaction` f JOIN `${GCP_PROJECT}.${BUILD_DATASET}.dim_date`\
-      \ d ON d.date_key = CAST(FORMAT_DATE('%Y%m%d', f._partition_date) AS INT64) LIMIT 0"
+      \ d ON d.date_key = CAST(FORMAT_DATE('%Y%m%d', f.partition_date) AS INT64) LIMIT 0"
   - id: "tier-etl-control-select"
     mode: measure
     sql: "SELECT run_date, check_name, status FROM `${GCP_PROJECT}.${BUILD_DATASET}.dq_results` LIMIT 0"
@@ -398,7 +398,7 @@ suites:
       sql: "SELECT COUNT(*) FROM `${GCP_PROJECT}.${BUILD_DATASET}.fact_interaction`"
       dry_run: true
     b:
-      sql: "SELECT COUNT(*) FROM `${GCP_PROJECT}.${BUILD_DATASET}.fact_interaction` WHERE _partition_date = DATE '2026-01-15'\
+      sql: "SELECT COUNT(*) FROM `${GCP_PROJECT}.${BUILD_DATASET}.fact_interaction` WHERE partition_date = DATE '2026-01-15'\
         \ AND channel = 'VOICE'"
       dry_run: true
     compare:
@@ -419,7 +419,7 @@ suites:
       sql: "SELECT COUNT(*) FROM `${GCP_PROJECT}.${BUILD_DATASET}.agg_agent_daily`"
       dry_run: true
     b:
-      sql: "SELECT COUNT(*) FROM `${GCP_PROJECT}.${BUILD_DATASET}.agg_agent_daily` WHERE _partition_date = DATE '2026-01-15'"
+      sql: "SELECT COUNT(*) FROM `${GCP_PROJECT}.${BUILD_DATASET}.agg_agent_daily` WHERE partition_date = DATE '2026-01-15'"
       dry_run: true
     compare:
       bytes_scanned: "b <= a"

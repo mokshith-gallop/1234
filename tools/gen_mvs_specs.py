@@ -389,13 +389,13 @@ def gen_dm_spec(tables, views):
             pass  # no partition/cluster
         elif t["group"] == "fact":
             if t["name"] == "fact_interaction":
-                bq_part = "_partition_date"
+                bq_part = "partition_date"
                 bq_cluster = ["channel", "agent_sk"]
             elif partitions:
-                bq_part = "_partition_date"
+                bq_part = "partition_date"
         elif t["group"] == "agg":
             if partitions:
-                bq_part = "_partition_date"
+                bq_part = "partition_date"
 
         cols = []
         for col in t["columns"]:
@@ -407,9 +407,9 @@ def gen_dm_spec(tables, views):
             spec_col = {"name": pcol_name, "type": bq_type, "source_type": pcol_hive_type.upper()}
             cols.append(spec_col)
 
-        # Add synthetic _partition_date for partitioned facts/aggs
-        if bq_part == "_partition_date":
-            cols.append({"name": "_partition_date", "type": "DATE"})
+        # Add synthetic partition_date for partitioned facts/aggs
+        if bq_part == "partition_date":
+            cols.append({"name": "partition_date", "type": "DATE"})
 
         tspec = {
             "table": t["name"],
@@ -759,7 +759,7 @@ def gen_queryability_perf_spec(tables, views):
         "sql": ("SELECT d.date_key, f.interaction_id "
                 "FROM `${GCP_PROJECT}.${BUILD_DATASET}.fact_interaction` f "
                 "JOIN `${GCP_PROJECT}.${BUILD_DATASET}.dim_date` d "
-                "ON d.date_key = CAST(FORMAT_DATE('%Y%m%d', f._partition_date) AS INT64) LIMIT 0"),
+                "ON d.date_key = CAST(FORMAT_DATE('%Y%m%d', f.partition_date) AS INT64) LIMIT 0"),
     })
     queries.append({
         "id": "tier-etl-control-select",
@@ -778,7 +778,7 @@ def gen_queryability_perf_spec(tables, views):
             },
             "b": {
                 "sql": ("SELECT COUNT(*) FROM `${GCP_PROJECT}.${BUILD_DATASET}.fact_interaction` "
-                        "WHERE _partition_date = DATE '2026-01-15' AND channel = 'VOICE'"),
+                        "WHERE partition_date = DATE '2026-01-15' AND channel = 'VOICE'"),
                 "dry_run": True,
             },
             "compare": {"bytes_scanned": "b <= a"},
@@ -806,7 +806,7 @@ def gen_queryability_perf_spec(tables, views):
             },
             "b": {
                 "sql": ("SELECT COUNT(*) FROM `${GCP_PROJECT}.${BUILD_DATASET}.agg_agent_daily` "
-                        "WHERE _partition_date = DATE '2026-01-15'"),
+                        "WHERE partition_date = DATE '2026-01-15'"),
                 "dry_run": True,
             },
             "compare": {"bytes_scanned": "b <= a"},

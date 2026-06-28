@@ -344,20 +344,20 @@ def emit_dm_table(t):
         if t["name"] == "fact_interaction":
             # Multi-col partition (date_key INT, channel STRING) + CLUSTERED BY (agent_sk)
             # -> PARTITION BY _partition_date, CLUSTER BY (channel, agent_sk)
-            bq_partition_col = "_partition_date"
+            bq_partition_col = "partition_date"
             cluster_cols = ["channel", "agent_sk"]
         elif t["name"] == "fact_billing_line":
-            # period_month STRING -> _partition_date DATE
-            bq_partition_col = "_partition_date"
+            # period_month STRING -> partition_date DATE
+            bq_partition_col = "partition_date"
         else:
-            # date_key INT -> _partition_date DATE
+            # date_key INT -> partition_date DATE
             if t["partition"]:
-                bq_partition_col = "_partition_date"
+                bq_partition_col = "partition_date"
 
     elif t["group"] == "agg":
-        # date_key INT / week_start_key INT / period_month STRING -> _partition_date DATE
+        # date_key INT / week_start_key INT / period_month STRING -> partition_date DATE
         if t["partition"]:
-            bq_partition_col = "_partition_date"
+            bq_partition_col = "partition_date"
 
     # Build regular column definitions
     for col in t["columns"]:
@@ -371,9 +371,9 @@ def emit_dm_table(t):
         bq_type = map_type(pcol_hive_type)
         col_defs.append(_emit_plain_column(pcol_name, bq_type))
 
-    # Add synthetic _partition_date column for fact/agg tables
-    if bq_partition_col == "_partition_date":
-        col_defs.append(_emit_plain_column("_partition_date", "DATE"))
+    # Add synthetic partition_date column for fact/agg tables
+    if bq_partition_col == "partition_date":
+        col_defs.append(_emit_plain_column("partition_date", "DATE"))
 
     lines.append(",\n".join(col_defs))
     lines.append(")")
@@ -486,7 +486,7 @@ def gen_dm_tables(tables):
 -- 04-dm-tables.sql — BigQuery DDL for DM layer ({len(dm)} tables)
 -- 9 dimensions (unpartitioned) + 9 facts + 7 aggregates
 -- INT date_key / week_start_key / STRING period_month converted to
--- _partition_date DATE (synthetic column). Bucketing -> CLUSTER BY.
+-- partition_date DATE (synthetic column). Bucketing -> CLUSTER BY.
 -- ---------------------------------------------------------------------------
 
 """
