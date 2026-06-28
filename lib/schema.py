@@ -112,6 +112,11 @@ def run(suite: dict, ctx: Context) -> SuiteResult:
             continue
         info = ctx.target.introspect_table(dataset, name)
 
+        # Source introspect ONCE per table (was per-column). Impala can't DESCRIBE Java-SerDe
+        # tables (JsonSerDe/RegexSerDe); _introspect_source falls back to Hive, which can.
+        src_info = (_introspect_source(ctx, src_db, tbl["source_table"])
+                    if src and tbl.get("source_table") else None)
+
         # Object-type fidelity: the landed object must be the declared TABLE / VIEW /
         # MATERIALIZED_VIEW (a source table silently flipped to a view, or vice versa, fails).
         # EXTERNAL / SNAPSHOT / CLONE are table variants (queryable like a table, not a view),
@@ -169,8 +174,8 @@ def run(suite: dict, ctx: Context) -> SuiteResult:
             # Cross-engine type-map check — opt-in per column: only when the agent
             # declares a mapping (source_type/source_name). Target-only/derived
             # columns (e.g. a new partition key) omit both and are not cross-checked.
-            if src and tbl.get("source_table") and (col.get("source_type") or col.get("source_name")):
-                _cross_check_source(src, src_db, tbl["source_table"], col, expected_type, chk, cfq)
+            if src_info and (col.get("source_type") or col.get("source_name")):
+                _cross_check_source(src_info, src_db, tbl["source_table"], col, expected_type, chk, cfq)
 
         # Partition column present + correct.
         if "partition_by" in tbl:
@@ -225,7 +230,19 @@ def _check_table_options(want: dict, info, fq, chk):
             expected=want["labels"], actual=act)
 
 
-def _cross_check_source(src, src_db, src_table, col, expected_type, chk, cfq):
+def _introspect_source(ctx, src_db, src_table):
+    """Introspect a legacy source table for the schema cross-check. Try the source engine
+    (Impala — fast), falling back to Hive (HS2) when Impala can't read it: Impala has no
+    Java-SerDe support, so JsonSerDe/RegexSerDe tables raise 'SerDe ... not supported'. Hive's
+    DESCRIBE reads its own SerDes — and in production those tables are Hive-only too. If Hive
+    also fails (e.g. the table truly doesn't exist) that error propagates -> the suite ERRORs."""
+    try:
+        return ctx.source.introspect_table(src_db, src_table)
+    except Exception:
+        return ctx.hive.introspect_table(src_db, src_table)
+
+
+def _cross_check_source(src_info, src_db, src_table, col, expected_type, chk, cfq):
     """Validate the legacy->target type mapping. For a 1:1 mapping (BIGINT->INT64) the
     legacy logical type should equal the declared target type; for an encoding
     conversion (epoch BIGINT(millis)->TIMESTAMP) the column declares `source_type`
@@ -234,10 +251,7 @@ def _cross_check_source(src, src_db, src_table, col, expected_type, chk, cfq):
     # Normalize the declared source type so the natural legacy spelling (BIGINT, DECIMAL,
     # FLOAT) matches the introspected source's logical type (INT64, NUMERIC, FLOAT64).
     want = normalize_type(col.get("source_type") or expected_type.name).name
-    # No catch: a legacy-unreachable error propagates -> the suite ERRORs (fail-fast),
-    # rather than silently passing as a skip.
-    info: TableInfo = src.introspect_table(src_db, src_table)
-    sc = info.column(src_name)
+    sc = src_info.column(src_name)
     if sc is None:
         chk(f"{cfq} (source map)", Status.FAIL, f"source column '{src_name}' not found in {src_db}.{src_table}")
         return

@@ -26,9 +26,11 @@ LABEL_KEY = "dmt_ephemeral"
 
 # --- source_setup: stand up the legacy source from its real DDL, then tear it down -------
 # Lets schema_conformance's source cross-check run against a sandbox source built from the
-# legacy DDL (the agent lists the files it converted), WITHOUT a live legacy DB and WITHOUT
-# ever touching a real one. Guarded by an opt-in env var so it can only run on a sandbox.
-SOURCE_SETUP_ENV = "DMT_SOURCE_SETUP"          # set ONLY for sandbox/test sources
+# legacy DDL (the agent lists the files it converted), WITHOUT a live legacy DB. ON BY DEFAULT
+# (our source is a sandbox we provision) — opt OUT with DMT_SOURCE_SETUP=0 to point at a REAL
+# legacy you must NOT write to (then the existing source is read as-is, never mutated).
+SOURCE_SETUP_ENV = "DMT_SOURCE_SETUP"          # default ON; set =0/false to skip (real read-only legacy)
+_SOURCE_SETUP_OFF = {"0", "false", "no", "off", ""}
 # Rehost legacy DDL onto OUR warehouse so it applies without the original cluster: rewrite any
 # off-cluster URI under LOCATION (hdfs://host/…, s3://…) to our warehouse base (table stays
 # EXTERNAL), and flip ACID tables to non-ACID.
@@ -80,12 +82,13 @@ def _split_statements(sql: str) -> list[str]:
 
 
 def setup_source(ctx, source_setup: dict, base_dir: str = ".") -> list[tuple[str, str]]:
-    """Apply the legacy source DDL files to an EPHEMERAL sandbox source so the source
-    cross-check has a live source to read. GUARDED: runs only when DMT_SOURCE_SETUP is set,
-    so it can never write to a real read-only legacy (no opt-in -> no-op, the real source is
-    used as-is). Writes via the Hive engine; INVALIDATE METADATA so an Impala read engine
-    sees the tables. Returns the created ('database'|'table', name) objects for teardown."""
-    if not os.environ.get(SOURCE_SETUP_ENV):
+    """Apply the legacy source DDL files to a sandbox source so the source cross-check has a
+    live source to read. ON BY DEFAULT (our source is a sandbox we provision from the legacy
+    DDL); opt OUT with DMT_SOURCE_SETUP=0 when pointed at a REAL legacy you must not write to
+    (then it's a no-op and the existing source is read as-is). Writes via the Hive engine;
+    INVALIDATE METADATA so an Impala read engine sees the tables. Returns the created
+    ('database'|'table', name) objects for teardown."""
+    if os.environ.get(SOURCE_SETUP_ENV, "1").strip().lower() in _SOURCE_SETUP_OFF:
         return []
     location_base = (source_setup.get("location_base")
                      or os.environ.get("DMT_SOURCE_LOCATION_BASE")

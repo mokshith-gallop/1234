@@ -457,6 +457,46 @@ class _HS2Engine(Engine):
         finally:
             conn.close()
 
+    def introspect_table(self, dataset: str, table: str) -> TableInfo:
+        # DESCRIBE FORMATTED yields columns, partition keys, table type, SERDE/location.
+        # On the shared HS2 base so BOTH Impala and Hive can introspect: Impala rejects
+        # Java-SerDe tables (JsonSerDe/RegexSerDe) at analysis time, so schema.py falls back
+        # to the Hive engine, whose DESCRIBE reads its own SerDes (Hive-only tables in prod too).
+        rows = self.query(f"DESCRIBE FORMATTED {dataset}.{table}")
+        cols: list[ColumnInfo] = []
+        partition_cols: list[str] = []
+        options: dict[str, Any] = {}
+        section = "cols"
+        ordinal = 0
+        for r in rows:
+            vals = list(r.values())
+            c0 = (str(vals[0]) if vals and vals[0] is not None else "").strip()
+            c1 = (str(vals[1]) if len(vals) > 1 and vals[1] is not None else "").strip()
+            if c0.startswith("# Partition Information"):
+                section = "partitions"
+                continue
+            if c0.startswith("# Detailed Table Information") or c0.startswith("# Storage"):
+                section = "detail"
+                continue
+            if not c0 or c0.startswith("# col_name"):
+                continue
+            if section == "cols" and c1:
+                cols.append(ColumnInfo(name=c0, type=normalize_type(c1), ordinal=ordinal,
+                                       description=(str(vals[2]).strip() if len(vals) > 2 and vals[2] else None)))
+                ordinal += 1
+            elif section == "partitions" and c1 and not c0.startswith("#"):
+                if c0 not in [c.name for c in cols]:
+                    cols.append(ColumnInfo(name=c0, type=normalize_type(c1), ordinal=ordinal))
+                    ordinal += 1
+                partition_cols.append(c0)
+            elif section == "detail":
+                key = c0.rstrip(":")
+                if key in ("Location", "Table Type", "SerDe Library", "InputFormat") and c1:
+                    options[key] = c1
+        is_external = "EXTERNAL" in str(options.get("Table Type", "")).upper()
+        return TableInfo(dataset=dataset, name=table, columns=cols,
+                         partition_columns=partition_cols, is_external=is_external, options=options)
+
 
 _PAREN_RE = re.compile(r"\((\d+)\)")
 _TIME_RE = re.compile(r"([\d.]+)(h|ms|us|ns|m|s)")
@@ -545,43 +585,6 @@ class ImpalaEngine(_HS2Engine):
         if n == "BOOL":                                      # Impala CAST(bool)->'0'/'1'; normalize to true/false
             return f"CASE WHEN {name} IS NULL THEN '{s}' WHEN {name} THEN 'true' ELSE 'false' END"
         return f"COALESCE(CAST({name} AS STRING), '{s}')"
-
-    def introspect_table(self, dataset: str, table: str) -> TableInfo:
-        # DESCRIBE FORMATTED yields columns, partition keys, table type, SERDE/location.
-        rows = self.query(f"DESCRIBE FORMATTED {dataset}.{table}")
-        cols: list[ColumnInfo] = []
-        partition_cols: list[str] = []
-        options: dict[str, Any] = {}
-        section = "cols"
-        ordinal = 0
-        for r in rows:
-            vals = list(r.values())
-            c0 = (str(vals[0]) if vals and vals[0] is not None else "").strip()
-            c1 = (str(vals[1]) if len(vals) > 1 and vals[1] is not None else "").strip()
-            if c0.startswith("# Partition Information"):
-                section = "partitions"
-                continue
-            if c0.startswith("# Detailed Table Information") or c0.startswith("# Storage"):
-                section = "detail"
-                continue
-            if not c0 or c0.startswith("# col_name"):
-                continue
-            if section == "cols" and c1:
-                cols.append(ColumnInfo(name=c0, type=normalize_type(c1), ordinal=ordinal,
-                                       description=(str(vals[2]).strip() if len(vals) > 2 and vals[2] else None)))
-                ordinal += 1
-            elif section == "partitions" and c1 and not c0.startswith("#"):
-                if c0 not in [c.name for c in cols]:
-                    cols.append(ColumnInfo(name=c0, type=normalize_type(c1), ordinal=ordinal))
-                    ordinal += 1
-                partition_cols.append(c0)
-            elif section == "detail":
-                key = c0.rstrip(":")
-                if key in ("Location", "Table Type", "SerDe Library", "InputFormat") and c1:
-                    options[key] = c1
-        is_external = "EXTERNAL" in str(options.get("Table Type", "")).upper()
-        return TableInfo(dataset=dataset, name=table, columns=cols,
-                         partition_columns=partition_cols, is_external=is_external, options=options)
 
 
 class HiveEngine(_HS2Engine):

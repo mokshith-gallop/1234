@@ -524,8 +524,7 @@ def gen_dm_views():
 
 -- 1. Org hierarchy (recursive CTE — BigQuery supports natively)
 CREATE OR REPLACE VIEW vw_org_hierarchy AS
-WITH RECURSIVE org_tree (org_unit_id, unit_code, unit_name, unit_type,
-                         site_code, root_unit_id, depth, path_names) AS (
+WITH RECURSIVE org_tree AS (
   SELECT o.org_unit_id, o.unit_code, o.unit_name, o.unit_type,
          o.site_code, o.org_unit_id AS root_unit_id, 0 AS depth,
          o.unit_name AS path_names
