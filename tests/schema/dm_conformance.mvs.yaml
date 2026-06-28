@@ -1,0 +1,1182 @@
+name: dm_schema_conformance
+description: Schema conformance for DM layer — 25 tables + 15 views.
+connections:
+  source:
+    engine: impala
+  target:
+    engine: bigquery
+source_setup:
+  location_base: "${SOURCE_WAREHOUSE:-/tmp/dmt_src}"
+  ddl:
+  - "sql/legacy/01-create-databases.hql"
+  - "sql/legacy/04-dm-tables.hql"
+migration:
+  steps:
+  - kind: ddl
+    sql: "ddl/04-dm-tables.sql"
+  - kind: ddl
+    sql: "ddl/05-dm-views.sql"
+suites:
+- pattern: schema_conformance
+  id: "dm-schema"
+  story_id: "NBCS-TARGET-SCHEMA"
+  target_dataset: "${BUILD_DATASET}"
+  source_database: dm
+  expect_table_count: 40
+  tables:
+  - table: dim_date
+    source_table: dim_date
+    expect_object_type: TABLE
+    columns:
+    - name: date_key
+      type: INT64
+      source_type: INT
+    - name: full_date
+      type: STRING
+      source_type: STRING
+    - name: day_of_week
+      type: INT64
+      source_type: INT
+    - name: day_name
+      type: STRING
+      source_type: STRING
+    - name: week_of_year
+      type: INT64
+      source_type: INT
+    - name: month_no
+      type: INT64
+      source_type: INT
+    - name: month_name
+      type: STRING
+      source_type: STRING
+    - name: quarter_no
+      type: INT64
+      source_type: INT
+    - name: year_no
+      type: INT64
+      source_type: INT
+    - name: is_weekend
+      type: BOOL
+      source_type: BOOLEAN
+    - name: is_holiday_us
+      type: BOOL
+      source_type: BOOLEAN
+    - name: fiscal_period
+      type: STRING
+      source_type: STRING
+  - table: dim_agent
+    source_table: dim_agent
+    expect_object_type: TABLE
+    columns:
+    - name: agent_sk
+      type: INT64
+      source_type: BIGINT
+    - name: agent_id
+      type: INT64
+      source_type: BIGINT
+    - name: employee_no
+      type: STRING
+      source_type: STRING
+    - name: full_name
+      type: STRING
+      source_type: STRING
+    - name: job_grade
+      type: STRING
+      source_type: STRING
+    - name: employment_type
+      type: STRING
+      source_type: STRING
+    - name: org_unit_id
+      type: INT64
+      source_type: BIGINT
+    - name: team_name
+      type: STRING
+      source_type: STRING
+    - name: site_code
+      type: STRING
+      source_type: STRING
+    - name: status
+      type: STRING
+      source_type: STRING
+    - name: hire_date_key
+      type: INT64
+      source_type: INT
+    - name: is_current
+      type: BOOL
+      source_type: BOOLEAN
+  - table: dim_client
+    source_table: dim_client
+    expect_object_type: TABLE
+    columns:
+    - name: client_sk
+      type: INT64
+      source_type: BIGINT
+    - name: client_id
+      type: INT64
+      source_type: BIGINT
+    - name: client_code
+      type: STRING
+      source_type: STRING
+    - name: client_name
+      type: STRING
+      source_type: STRING
+    - name: industry
+      type: STRING
+      source_type: STRING
+    - name: hq_country
+      type: STRING
+      source_type: STRING
+    - name: primary_contact_name
+      type: STRING
+      source_type: STRING
+    - name: primary_contact_email
+      type: STRING
+      source_type: STRING
+    - name: status
+      type: STRING
+      source_type: STRING
+  - table: dim_program
+    source_table: dim_program
+    expect_object_type: TABLE
+    columns:
+    - name: program_sk
+      type: INT64
+      source_type: BIGINT
+    - name: program_id
+      type: INT64
+      source_type: BIGINT
+    - name: program_code
+      type: STRING
+      source_type: STRING
+    - name: program_name
+      type: STRING
+      source_type: STRING
+    - name: client_id
+      type: INT64
+      source_type: BIGINT
+    - name: line_of_business
+      type: STRING
+      source_type: STRING
+    - name: channel_mix
+      type: STRING
+      source_type: STRING
+    - name: site_code
+      type: STRING
+      source_type: STRING
+    - name: billing_model
+      type: STRING
+      source_type: STRING
+    - name: status
+      type: STRING
+      source_type: STRING
+    - name: go_live_date_key
+      type: INT64
+      source_type: INT
+  - table: dim_queue
+    source_table: dim_queue
+    expect_object_type: TABLE
+    columns:
+    - name: queue_sk
+      type: INT64
+      source_type: BIGINT
+    - name: queue_id
+      type: INT64
+      source_type: BIGINT
+    - name: queue_code
+      type: STRING
+      source_type: STRING
+    - name: queue_name
+      type: STRING
+      source_type: STRING
+    - name: program_id
+      type: INT64
+      source_type: BIGINT
+    - name: media_type
+      type: STRING
+      source_type: STRING
+    - name: priority
+      type: INT64
+      source_type: INT
+  - table: dim_site
+    source_table: dim_site
+    expect_object_type: TABLE
+    columns:
+    - name: site_sk
+      type: INT64
+      source_type: BIGINT
+    - name: site_code
+      type: STRING
+      source_type: STRING
+    - name: site_name
+      type: STRING
+      source_type: STRING
+    - name: region
+      type: STRING
+      source_type: STRING
+    - name: country
+      type: STRING
+      source_type: STRING
+    - name: timezone
+      type: STRING
+      source_type: STRING
+  - table: dim_shift
+    source_table: dim_shift
+    expect_object_type: TABLE
+    columns:
+    - name: shift_sk
+      type: INT64
+      source_type: BIGINT
+    - name: shift_id
+      type: INT64
+      source_type: BIGINT
+    - name: shift_code
+      type: STRING
+      source_type: STRING
+    - name: shift_name
+      type: STRING
+      source_type: STRING
+    - name: start_hhmm
+      type: STRING
+      source_type: STRING
+    - name: end_hhmm
+      type: STRING
+      source_type: STRING
+    - name: overnight_flag
+      type: BOOL
+      source_type: BOOLEAN
+    - name: site_code
+      type: STRING
+      source_type: STRING
+  - table: dim_org
+    source_table: dim_org
+    expect_object_type: TABLE
+    columns:
+    - name: org_sk
+      type: INT64
+      source_type: BIGINT
+    - name: org_unit_id
+      type: INT64
+      source_type: BIGINT
+    - name: unit_code
+      type: STRING
+      source_type: STRING
+    - name: unit_name
+      type: STRING
+      source_type: STRING
+    - name: unit_type
+      type: STRING
+      source_type: STRING
+    - name: level1_name
+      type: STRING
+      source_type: STRING
+    - name: level2_name
+      type: STRING
+      source_type: STRING
+    - name: level3_name
+      type: STRING
+      source_type: STRING
+    - name: level4_name
+      type: STRING
+      source_type: STRING
+    - name: site_code
+      type: STRING
+      source_type: STRING
+    - name: cost_center
+      type: STRING
+      source_type: STRING
+  - table: dim_disposition
+    source_table: dim_disposition
+    expect_object_type: TABLE
+    columns:
+    - name: disposition_sk
+      type: INT64
+      source_type: BIGINT
+    - name: disposition_code
+      type: STRING
+      source_type: STRING
+    - name: disposition_desc
+      type: STRING
+      source_type: STRING
+    - name: category
+      type: STRING
+      source_type: STRING
+    - name: billable_flag
+      type: BOOL
+      source_type: BOOLEAN
+  - table: fact_interaction
+    source_table: fact_interaction
+    expect_object_type: TABLE
+    columns:
+    - name: interaction_id
+      type: STRING
+      source_type: STRING
+    - name: client_sk
+      type: INT64
+      source_type: BIGINT
+    - name: program_sk
+      type: INT64
+      source_type: BIGINT
+    - name: queue_sk
+      type: INT64
+      source_type: BIGINT
+    - name: agent_sk
+      type: INT64
+      source_type: BIGINT
+    - name: customer_ref
+      type: STRING
+      source_type: STRING
+    - name: start_ts
+      type: TIMESTAMP
+      source_type: TIMESTAMP
+    - name: end_ts
+      type: TIMESTAMP
+      source_type: TIMESTAMP
+    - name: handle_seconds
+      type: INT64
+      source_type: INT
+    - name: resolved_flag
+      type: BOOL
+      source_type: BOOLEAN
+    - name: source_system
+      type: STRING
+      source_type: STRING
+    - name: date_key
+      type: INT64
+      source_type: INT
+    - name: channel
+      type: STRING
+      source_type: STRING
+    - name: _partition_date
+      type: DATE
+    partition_by: _partition_date
+    cluster_by:
+    - channel
+    - agent_sk
+  - table: fact_agent_activity
+    source_table: fact_agent_activity
+    expect_object_type: TABLE
+    columns:
+    - name: agent_sk
+      type: INT64
+      source_type: BIGINT
+    - name: state_code
+      type: STRING
+      source_type: STRING
+    - name: state_seconds
+      type: INT64
+      source_type: BIGINT
+    - name: occurrence_count
+      type: INT64
+      source_type: INT
+    - name: first_state_ts
+      type: TIMESTAMP
+      source_type: TIMESTAMP
+    - name: last_state_ts
+      type: TIMESTAMP
+      source_type: TIMESTAMP
+    - name: date_key
+      type: INT64
+      source_type: INT
+    - name: _partition_date
+      type: DATE
+    partition_by: _partition_date
+  - table: fact_queue_interval
+    source_table: fact_queue_interval
+    expect_object_type: TABLE
+    columns:
+    - name: queue_sk
+      type: INT64
+      source_type: BIGINT
+    - name: interval_start_ts
+      type: TIMESTAMP
+      source_type: TIMESTAMP
+    - name: offered
+      type: INT64
+      source_type: INT
+    - name: answered
+      type: INT64
+      source_type: INT
+    - name: abandoned
+      type: INT64
+      source_type: INT
+    - name: answered_in_sl
+      type: INT64
+      source_type: INT
+    - name: sl_threshold_sec
+      type: INT64
+      source_type: INT
+    - name: avg_speed_answer_sec
+      type: "NUMERIC(8,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: avg_handle_sec
+      type: "NUMERIC(8,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: date_key
+      type: INT64
+      source_type: INT
+    - name: _partition_date
+      type: DATE
+    partition_by: _partition_date
+  - table: fact_csat_survey
+    source_table: fact_csat_survey
+    expect_object_type: TABLE
+    columns:
+    - name: survey_id
+      type: STRING
+      source_type: STRING
+    - name: interaction_id
+      type: STRING
+      source_type: STRING
+    - name: client_sk
+      type: INT64
+      source_type: BIGINT
+    - name: program_sk
+      type: INT64
+      source_type: BIGINT
+    - name: agent_sk
+      type: INT64
+      source_type: BIGINT
+    - name: survey_ts
+      type: TIMESTAMP
+      source_type: TIMESTAMP
+    - name: csat_score
+      type: INT64
+      source_type: INT
+    - name: nps_score
+      type: INT64
+      source_type: INT
+    - name: fcr_claimed
+      type: BOOL
+      source_type: BOOLEAN
+    - name: date_key
+      type: INT64
+      source_type: INT
+    - name: _partition_date
+      type: DATE
+    partition_by: _partition_date
+  - table: fact_qa_evaluation
+    source_table: fact_qa_evaluation
+    expect_object_type: TABLE
+    columns:
+    - name: qa_form_id
+      type: STRING
+      source_type: STRING
+    - name: interaction_id
+      type: STRING
+      source_type: STRING
+    - name: agent_sk
+      type: INT64
+      source_type: BIGINT
+    - name: program_sk
+      type: INT64
+      source_type: BIGINT
+    - name: evaluated_ts
+      type: TIMESTAMP
+      source_type: TIMESTAMP
+    - name: scored_points
+      type: INT64
+      source_type: INT
+    - name: max_points
+      type: INT64
+      source_type: INT
+    - name: overall_pct
+      type: "NUMERIC(5,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: auto_fail
+      type: BOOL
+      source_type: BOOLEAN
+    - name: date_key
+      type: INT64
+      source_type: INT
+    - name: _partition_date
+      type: DATE
+    partition_by: _partition_date
+  - table: fact_billing_line
+    source_table: fact_billing_line
+    expect_object_type: TABLE
+    columns:
+    - name: invoice_line_id
+      type: INT64
+      source_type: BIGINT
+    - name: invoice_id
+      type: INT64
+      source_type: BIGINT
+    - name: client_sk
+      type: INT64
+      source_type: BIGINT
+    - name: program_sk
+      type: INT64
+      source_type: BIGINT
+    - name: service_code
+      type: STRING
+      source_type: STRING
+    - name: qty
+      type: "NUMERIC(12,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: unit_rate
+      type: "NUMERIC(12,4)"
+      scale: 4
+      source_type: DECIMAL
+    - name: line_amount
+      type: "NUMERIC(14,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: adjustment_flag
+      type: BOOL
+      source_type: BOOLEAN
+    - name: invoice_status
+      type: STRING
+      source_type: STRING
+    - name: period_month
+      type: STRING
+      source_type: STRING
+    - name: _partition_date
+      type: DATE
+    partition_by: _partition_date
+  - table: fact_adherence_daily
+    source_table: fact_adherence_daily
+    expect_object_type: TABLE
+    columns:
+    - name: agent_sk
+      type: INT64
+      source_type: BIGINT
+    - name: scheduled_minutes
+      type: INT64
+      source_type: INT
+    - name: worked_minutes
+      type: INT64
+      source_type: INT
+    - name: exception_minutes
+      type: INT64
+      source_type: INT
+    - name: timeoff_minutes
+      type: INT64
+      source_type: INT
+    - name: adherence_pct
+      type: "NUMERIC(5,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: occupancy_pct
+      type: "NUMERIC(5,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: date_key
+      type: INT64
+      source_type: INT
+    - name: _partition_date
+      type: DATE
+    partition_by: _partition_date
+  - table: fact_ticket
+    source_table: fact_ticket
+    expect_object_type: TABLE
+    columns:
+    - name: ticket_id
+      type: INT64
+      source_type: BIGINT
+    - name: program_sk
+      type: INT64
+      source_type: BIGINT
+    - name: category_code
+      type: STRING
+      source_type: STRING
+    - name: assigned_agent_sk
+      type: INT64
+      source_type: BIGINT
+    - name: priority
+      type: STRING
+      source_type: STRING
+    - name: status
+      type: STRING
+      source_type: STRING
+    - name: created_ts
+      type: TIMESTAMP
+      source_type: TIMESTAMP
+    - name: resolved_ts
+      type: TIMESTAMP
+      source_type: TIMESTAMP
+    - name: resolution_minutes
+      type: INT64
+      source_type: INT
+    - name: sla_breached_flag
+      type: BOOL
+      source_type: BOOLEAN
+    - name: touch_count
+      type: INT64
+      source_type: INT
+    - name: date_key
+      type: INT64
+      source_type: INT
+    - name: _partition_date
+      type: DATE
+    partition_by: _partition_date
+  - table: fact_ivr_path
+    source_table: fact_ivr_path
+    expect_object_type: TABLE
+    columns:
+    - name: session_ref
+      type: STRING
+      source_type: STRING
+    - name: client_code
+      type: STRING
+      source_type: STRING
+    - name: menu_path_full
+      type: STRING
+      source_type: STRING
+    - name: hops
+      type: INT64
+      source_type: INT
+    - name: contained_flag
+      type: BOOL
+      source_type: BOOLEAN
+    - name: exit_key
+      type: STRING
+      source_type: STRING
+    - name: duration_seconds
+      type: INT64
+      source_type: INT
+    - name: date_key
+      type: INT64
+      source_type: INT
+    - name: _partition_date
+      type: DATE
+    partition_by: _partition_date
+  - table: agg_agent_daily
+    source_table: agg_agent_daily
+    expect_object_type: TABLE
+    columns:
+    - name: agent_sk
+      type: INT64
+      source_type: BIGINT
+    - name: site_code
+      type: STRING
+      source_type: STRING
+    - name: interactions_handled
+      type: INT64
+      source_type: INT
+    - name: avg_handle_seconds
+      type: "NUMERIC(8,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: talk_seconds
+      type: INT64
+      source_type: BIGINT
+    - name: acw_seconds
+      type: INT64
+      source_type: BIGINT
+    - name: aux_seconds
+      type: INT64
+      source_type: BIGINT
+    - name: adherence_pct
+      type: "NUMERIC(5,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: occupancy_pct
+      type: "NUMERIC(5,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: date_key
+      type: INT64
+      source_type: INT
+    - name: _partition_date
+      type: DATE
+    partition_by: _partition_date
+  - table: agg_agent_weekly
+    source_table: agg_agent_weekly
+    expect_object_type: TABLE
+    columns:
+    - name: agent_sk
+      type: INT64
+      source_type: BIGINT
+    - name: site_code
+      type: STRING
+      source_type: STRING
+    - name: days_worked
+      type: INT64
+      source_type: INT
+    - name: interactions_handled
+      type: INT64
+      source_type: INT
+    - name: avg_handle_seconds
+      type: "NUMERIC(8,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: adherence_pct
+      type: "NUMERIC(5,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: occupancy_pct
+      type: "NUMERIC(5,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: week_start_key
+      type: INT64
+      source_type: INT
+    - name: _partition_date
+      type: DATE
+    partition_by: _partition_date
+  - table: agg_program_monthly
+    source_table: agg_program_monthly
+    expect_object_type: TABLE
+    columns:
+    - name: client_sk
+      type: INT64
+      source_type: BIGINT
+    - name: program_sk
+      type: INT64
+      source_type: BIGINT
+    - name: line_of_business
+      type: STRING
+      source_type: STRING
+    - name: interactions
+      type: INT64
+      source_type: BIGINT
+    - name: avg_handle_seconds
+      type: "NUMERIC(8,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: avg_csat
+      type: "NUMERIC(5,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: billed_amount
+      type: "NUMERIC(14,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: grouping_level
+      type: INT64
+      source_type: INT
+    - name: period_month
+      type: STRING
+      source_type: STRING
+    - name: _partition_date
+      type: DATE
+    partition_by: _partition_date
+  - table: agg_queue_hourly
+    source_table: agg_queue_hourly
+    expect_object_type: TABLE
+    columns:
+    - name: queue_sk
+      type: INT64
+      source_type: BIGINT
+    - name: hour_of_day
+      type: INT64
+      source_type: INT
+    - name: offered
+      type: INT64
+      source_type: INT
+    - name: answered
+      type: INT64
+      source_type: INT
+    - name: abandoned
+      type: INT64
+      source_type: INT
+    - name: sl_pct
+      type: "NUMERIC(5,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: forecast_volume
+      type: INT64
+      source_type: INT
+    - name: volume_variance_pct
+      type: "NUMERIC(7,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: date_key
+      type: INT64
+      source_type: INT
+    - name: _partition_date
+      type: DATE
+    partition_by: _partition_date
+  - table: agg_csat_rollup_monthly
+    source_table: agg_csat_rollup_monthly
+    expect_object_type: TABLE
+    columns:
+    - name: client_sk
+      type: INT64
+      source_type: BIGINT
+    - name: program_sk
+      type: INT64
+      source_type: BIGINT
+    - name: site_code
+      type: STRING
+      source_type: STRING
+    - name: surveys
+      type: INT64
+      source_type: BIGINT
+    - name: avg_csat
+      type: "NUMERIC(5,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: pct_promoters
+      type: "NUMERIC(5,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: pct_detractors
+      type: "NUMERIC(5,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: grouping_id
+      type: INT64
+      source_type: INT
+    - name: period_month
+      type: STRING
+      source_type: STRING
+    - name: _partition_date
+      type: DATE
+    partition_by: _partition_date
+  - table: agg_billing_monthly
+    source_table: agg_billing_monthly
+    expect_object_type: TABLE
+    columns:
+    - name: client_sk
+      type: INT64
+      source_type: BIGINT
+    - name: program_sk
+      type: INT64
+      source_type: BIGINT
+    - name: billed_amount
+      type: "NUMERIC(14,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: sla_credit_amount
+      type: "NUMERIC(12,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: telco_cost_amount
+      type: "NUMERIC(12,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: net_revenue
+      type: "NUMERIC(14,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: period_month
+      type: STRING
+      source_type: STRING
+    - name: _partition_date
+      type: DATE
+    partition_by: _partition_date
+  - table: agg_site_daily
+    source_table: agg_site_daily
+    expect_object_type: TABLE
+    columns:
+    - name: site_code
+      type: STRING
+      source_type: STRING
+    - name: agents_active
+      type: INT64
+      source_type: INT
+    - name: interactions
+      type: INT64
+      source_type: BIGINT
+    - name: avg_handle_seconds
+      type: "NUMERIC(8,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: sl_pct
+      type: "NUMERIC(5,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: adherence_pct
+      type: "NUMERIC(5,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: date_key
+      type: INT64
+      source_type: INT
+    - name: _partition_date
+      type: DATE
+    partition_by: _partition_date
+  - table: vw_org_hierarchy
+    expect_object_type: VIEW
+    columns:
+    - name: org_unit_id
+      type: INT64
+    - name: unit_code
+      type: STRING
+    - name: unit_name
+      type: STRING
+    - name: unit_type
+      type: STRING
+    - name: site_code
+      type: STRING
+    - name: root_unit_id
+      type: INT64
+    - name: depth
+      type: INT64
+    - name: path_names
+      type: STRING
+  - table: vw_active_agents_ndv
+    expect_object_type: VIEW
+    columns:
+    - name: date_key
+      type: INT64
+    - name: site_code
+      type: STRING
+    - name: approx_active_agents
+      type: INT64
+    - name: approx_agent_channel_pairs
+      type: INT64
+    - name: interactions
+      type: INT64
+  - table: vw_csat_rollup
+    expect_object_type: VIEW
+    columns:
+    - name: client_id
+      type: INT64
+    - name: program_code
+      type: STRING
+    - name: surveys
+      type: INT64
+    - name: avg_csat
+      type: FLOAT64
+    - name: pct_promoters
+      type: FLOAT64
+    - name: grouping_level
+      type: INT64
+  - table: vw_call_driver_regex
+    expect_object_type: VIEW
+    columns:
+    - name: call_date
+      type: DATE
+    - name: queue_id
+      type: INT64
+    - name: call_driver
+      type: STRING
+    - name: embedded_ref_no
+      type: STRING
+    - name: calls
+      type: INT64
+    - name: avg_talk_seconds
+      type: FLOAT64
+  - table: vw_repeat_contact_window
+    expect_object_type: VIEW
+    columns:
+    - name: interaction_id
+      type: STRING
+    - name: customer_ref
+      type: STRING
+    - name: channel
+      type: STRING
+    - name: start_ts
+      type: TIMESTAMP
+    - name: prev_contact_ts
+      type: TIMESTAMP
+    - name: repeat_within_72h
+      type: INT64
+  - table: vw_billing_reconciliation
+    expect_object_type: VIEW
+    columns:
+    - name: invoice_no
+      type: STRING
+    - name: staged_amount
+      type: NUMERIC
+      scale: 2
+    - name: ods_amount
+      type: NUMERIC
+      scale: 2
+    - name: staged_issued_ts
+      type: TIMESTAMP
+    - name: ods_issued_ts
+      type: TIMESTAMP
+    - name: drift_seconds
+      type: INT64
+    - name: recon_status
+      type: STRING
+  - table: vw_agent_roster_current
+    expect_object_type: VIEW
+    columns:
+    - name: agent_id
+      type: INT64
+    - name: employee_no
+      type: STRING
+    - name: org_unit_id
+      type: INT64
+    - name: job_grade
+      type: STRING
+    - name: employment_type
+      type: STRING
+    - name: status
+      type: STRING
+    - name: eff_from_ts
+      type: TIMESTAMP
+    - name: current_program_id
+      type: INT64
+    - name: current_queue_id
+      type: INT64
+    - name: role_on_program
+      type: STRING
+  - table: vw_agent_scorecard
+    expect_object_type: VIEW
+    columns:
+    - name: agent_sk
+      type: INT64
+    - name: full_name
+      type: STRING
+    - name: site_code
+      type: STRING
+    - name: job_grade
+      type: STRING
+    - name: aht
+      type: FLOAT64
+    - name: adherence
+      type: FLOAT64
+    - name: volume
+      type: INT64
+    - name: avg_qa_pct
+      type: FLOAT64
+    - name: certified_skills
+      type: INT64
+    - name: aht_pctile
+      type: FLOAT64
+    - name: qa_quartile
+      type: INT64
+  - table: vw_attrition_risk
+    expect_object_type: VIEW
+    columns:
+    - name: agent_sk
+      type: INT64
+    - name: agent_id
+      type: INT64
+    - name: full_name
+      type: STRING
+    - name: site_code
+      type: STRING
+    - name: adherence_90d
+      type: FLOAT64
+    - name: notice_events
+      type: INT64
+    - name: attrition_risk
+      type: STRING
+  - table: vw_queue_sla_attainment
+    expect_object_type: VIEW
+    columns:
+    - name: queue_code
+      type: STRING
+    - name: media_type
+      type: STRING
+    - name: date_key
+      type: INT64
+    - name: sl_pct
+      type: FLOAT64
+    - name: sl_target
+      type: NUMERIC
+      scale: 4
+    - name: attainment
+      type: STRING
+  - table: vw_first_contact_resolution
+    expect_object_type: VIEW
+    columns:
+    - name: date_key
+      type: INT64
+    - name: program_sk
+      type: INT64
+    - name: resolved_interactions
+      type: INT64
+    - name: fcr_count
+      type: INT64
+    - name: fcr_pct
+      type: FLOAT64
+  - table: vw_occupancy_utilization
+    expect_object_type: VIEW
+    columns:
+    - name: date_key
+      type: INT64
+    - name: site_code
+      type: STRING
+    - name: agent_sk
+      type: INT64
+    - name: handle_seconds
+      type: INT64
+    - name: ready_seconds
+      type: INT64
+    - name: aux_seconds
+      type: INT64
+    - name: occupancy_pct
+      type: FLOAT64
+  - table: vw_shrinkage_analysis
+    expect_object_type: VIEW
+    columns:
+    - name: date_key
+      type: INT64
+    - name: site_code
+      type: STRING
+    - name: scheduled_minutes
+      type: INT64
+    - name: worked_minutes
+      type: INT64
+    - name: shrinkage_minutes
+      type: INT64
+    - name: shrinkage_pct
+      type: FLOAT64
+    - name: schedules
+      type: INT64
+    - name: overnight_shifts
+      type: INT64
+  - table: vw_program_margin
+    expect_object_type: VIEW
+    columns:
+    - name: period_month
+      type: STRING
+    - name: client_sk
+      type: INT64
+    - name: program_sk
+      type: INT64
+    - name: billed_amount
+      type: NUMERIC
+      scale: 2
+    - name: net_revenue
+      type: NUMERIC
+      scale: 2
+    - name: est_labor_cost
+      type: FLOAT64
+    - name: total_adjustments
+      type: NUMERIC
+      scale: 2
+    - name: est_margin
+      type: FLOAT64
+    - name: committed_min
+      type: NUMERIC
+      scale: 2
+  - table: vw_client_executive_summary
+    expect_object_type: VIEW
+    columns:
+    - name: client_code
+      type: STRING
+    - name: client_name
+      type: STRING
+    - name: period_month
+      type: STRING
+    - name: program_code
+      type: STRING
+    - name: interactions
+      type: INT64
+    - name: avg_handle_seconds
+      type: NUMERIC
+      scale: 2
+    - name: avg_csat
+      type: NUMERIC
+      scale: 2
+    - name: pct_promoters
+      type: NUMERIC
+      scale: 2
+    - name: pct_detractors
+      type: NUMERIC
+      scale: 2
+    - name: billed_amount
+      type: NUMERIC
+      scale: 2
+    - name: sla_credit_amount
+      type: NUMERIC
+      scale: 2
+    - name: net_revenue
+      type: NUMERIC
+      scale: 2
+    - name: open_tickets
+      type: INT64
+    - name: sla_breached_tickets
+      type: INT64

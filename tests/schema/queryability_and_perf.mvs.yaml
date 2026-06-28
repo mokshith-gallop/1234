@@ -1,0 +1,425 @@
+name: queryability_and_performance
+description: "AC6: queryability smoke (SELECT * LIMIT 0 on all 118 objects + 4 tier queries). AC10: partition/cluster pruning\
+  \ perf."
+connections:
+  target:
+    engine: bigquery
+migration:
+  steps:
+  - kind: ddl
+    sql: "ddl/02-staging.sql"
+  - kind: ddl
+    sql: "ddl/03-ods.sql"
+  - kind: ddl
+    sql: "ddl/04-dm-tables.sql"
+  - kind: ddl
+    sql: "ddl/05-dm-views.sql"
+  - kind: ddl
+    sql: "ddl/06-etl-control.sql"
+suites:
+- pattern: query_performance
+  id: "queryability-smoke"
+  story_id: "NBCS-QUERYABILITY"
+  queries:
+  - id: "smoke-staging-stg_crm_client"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_crm_client` LIMIT 0"
+  - id: "smoke-staging-stg_crm_client_contact"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_crm_client_contact` LIMIT 0"
+  - id: "smoke-staging-stg_crm_program"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_crm_program` LIMIT 0"
+  - id: "smoke-staging-stg_crm_contract"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_crm_contract` LIMIT 0"
+  - id: "smoke-staging-stg_crm_contract_line"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_crm_contract_line` LIMIT 0"
+  - id: "smoke-staging-stg_crm_sla_target"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_crm_sla_target` LIMIT 0"
+  - id: "smoke-staging-stg_hr_agent"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_hr_agent` LIMIT 0"
+  - id: "smoke-staging-stg_hr_org_unit"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_hr_org_unit` LIMIT 0"
+  - id: "smoke-staging-stg_hr_employment_event"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_hr_employment_event` LIMIT 0"
+  - id: "smoke-staging-stg_hr_skill"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_hr_skill` LIMIT 0"
+  - id: "smoke-staging-stg_hr_agent_skill"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_hr_agent_skill` LIMIT 0"
+  - id: "smoke-staging-stg_wfm_shift"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_wfm_shift` LIMIT 0"
+  - id: "smoke-staging-stg_wfm_schedule"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_wfm_schedule` LIMIT 0"
+  - id: "smoke-staging-stg_wfm_adherence_event"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_wfm_adherence_event` LIMIT 0"
+  - id: "smoke-staging-stg_wfm_forecast"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_wfm_forecast` LIMIT 0"
+  - id: "smoke-staging-stg_wfm_timeoff_request"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_wfm_timeoff_request` LIMIT 0"
+  - id: "smoke-staging-stg_tel_call"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_tel_call` LIMIT 0"
+  - id: "smoke-staging-stg_tel_call_segment"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_tel_call_segment` LIMIT 0"
+  - id: "smoke-staging-stg_tel_queue"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_tel_queue` LIMIT 0"
+  - id: "smoke-staging-stg_tel_agent_state_event"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_tel_agent_state_event` LIMIT 0"
+  - id: "smoke-staging-stg_tel_disposition_code"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_tel_disposition_code` LIMIT 0"
+  - id: "smoke-staging-stg_tkt_ticket"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_tkt_ticket` LIMIT 0"
+  - id: "smoke-staging-stg_tkt_ticket_event"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_tkt_ticket_event` LIMIT 0"
+  - id: "smoke-staging-stg_tkt_category"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_tkt_category` LIMIT 0"
+  - id: "smoke-staging-stg_fin_invoice"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_fin_invoice` LIMIT 0"
+  - id: "smoke-staging-stg_fin_invoice_line"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_fin_invoice_line` LIMIT 0"
+  - id: "smoke-staging-stg_fin_rate_card"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_fin_rate_card` LIMIT 0"
+  - id: "smoke-staging-stg_fin_timesheet_delta"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_fin_timesheet_delta` LIMIT 0"
+  - id: "smoke-staging-stg_fin_payroll_adj_delta"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_fin_payroll_adj_delta` LIMIT 0"
+  - id: "smoke-staging-stg_crm_sla_credit_delta"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_crm_sla_credit_delta` LIMIT 0"
+  - id: "smoke-staging-stg_tel_callback_request_delta"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_tel_callback_request_delta` LIMIT 0"
+  - id: "smoke-staging-stg_wfm_shift_swap_delta"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_wfm_shift_swap_delta` LIMIT 0"
+  - id: "smoke-staging-stg_tkt_worklog_delta"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_tkt_worklog_delta` LIMIT 0"
+  - id: "smoke-staging-stg_hr_attrition_event_delta"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_hr_attrition_event_delta` LIMIT 0"
+  - id: "smoke-staging-stg_fin_rate_card_change_delta"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_fin_rate_card_change_delta` LIMIT 0"
+  - id: "smoke-staging-stg_file_interaction_export"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_file_interaction_export` LIMIT 0"
+  - id: "smoke-staging-stg_file_survey_csat"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_file_survey_csat` LIMIT 0"
+  - id: "smoke-staging-stg_file_qa_forms"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_file_qa_forms` LIMIT 0"
+  - id: "smoke-staging-stg_file_ivr_logs"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_file_ivr_logs` LIMIT 0"
+  - id: "smoke-staging-stg_file_chat_transcripts"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_file_chat_transcripts` LIMIT 0"
+  - id: "smoke-staging-stg_file_roster"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_file_roster` LIMIT 0"
+  - id: "smoke-staging-stg_file_telco_invoice"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_file_telco_invoice` LIMIT 0"
+  - id: "smoke-staging-stg_file_dialer_result"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_file_dialer_result` LIMIT 0"
+  - id: "smoke-staging-stg_file_email_interaction"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_file_email_interaction` LIMIT 0"
+  - id: "smoke-staging-stg_file_speech_analytics"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_file_speech_analytics` LIMIT 0"
+  - id: "smoke-ods-ods_program"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_program` LIMIT 0"
+  - id: "smoke-ods-ods_contract"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_contract` LIMIT 0"
+  - id: "smoke-ods-ods_contract_line"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_contract_line` LIMIT 0"
+  - id: "smoke-ods-ods_org_unit"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_org_unit` LIMIT 0"
+  - id: "smoke-ods-ods_queue"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_queue` LIMIT 0"
+  - id: "smoke-ods-ods_schedule"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_schedule` LIMIT 0"
+  - id: "smoke-ods-ods_adherence_event"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_adherence_event` LIMIT 0"
+  - id: "smoke-ods-ods_call"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_call` LIMIT 0"
+  - id: "smoke-ods-ods_ivr_session"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_ivr_session` LIMIT 0"
+  - id: "smoke-ods-ods_chat_session"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_chat_session` LIMIT 0"
+  - id: "smoke-ods-ods_email_interaction"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_email_interaction` LIMIT 0"
+  - id: "smoke-ods-ods_survey_response"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_survey_response` LIMIT 0"
+  - id: "smoke-ods-ods_qa_evaluation"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_qa_evaluation` LIMIT 0"
+  - id: "smoke-ods-ods_interaction"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_interaction` LIMIT 0"
+  - id: "smoke-ods-ods_dialer_attempt"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_dialer_attempt` LIMIT 0"
+  - id: "smoke-ods-ods_timesheet"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_timesheet` LIMIT 0"
+  - id: "smoke-ods-ods_payroll_adjustment"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_payroll_adjustment` LIMIT 0"
+  - id: "smoke-ods-ods_sla_credit"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_sla_credit` LIMIT 0"
+  - id: "smoke-ods-ods_callback_request"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_callback_request` LIMIT 0"
+  - id: "smoke-ods-ods_shift_swap"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_shift_swap` LIMIT 0"
+  - id: "smoke-ods-ods_ticket_worklog"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_ticket_worklog` LIMIT 0"
+  - id: "smoke-ods-ods_attrition_event"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_attrition_event` LIMIT 0"
+  - id: "smoke-ods-ods_rate_card"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_rate_card` LIMIT 0"
+  - id: "smoke-ods-ods_agent_scd2"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_agent_scd2` LIMIT 0"
+  - id: "smoke-ods-ods_agent_skill_scd2"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_agent_skill_scd2` LIMIT 0"
+  - id: "smoke-ods-ods_agent_assignment_scd2"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_agent_assignment_scd2` LIMIT 0"
+  - id: "smoke-ods-ods_client_acid"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_client_acid` LIMIT 0"
+  - id: "smoke-ods-ods_agent_acid"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_agent_acid` LIMIT 0"
+  - id: "smoke-ods-ods_ticket_acid"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_ticket_acid` LIMIT 0"
+  - id: "smoke-ods-ods_invoice_acid"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_invoice_acid` LIMIT 0"
+  - id: "smoke-dm-dim_date"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.dim_date` LIMIT 0"
+  - id: "smoke-dm-dim_agent"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.dim_agent` LIMIT 0"
+  - id: "smoke-dm-dim_client"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.dim_client` LIMIT 0"
+  - id: "smoke-dm-dim_program"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.dim_program` LIMIT 0"
+  - id: "smoke-dm-dim_queue"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.dim_queue` LIMIT 0"
+  - id: "smoke-dm-dim_site"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.dim_site` LIMIT 0"
+  - id: "smoke-dm-dim_shift"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.dim_shift` LIMIT 0"
+  - id: "smoke-dm-dim_org"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.dim_org` LIMIT 0"
+  - id: "smoke-dm-dim_disposition"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.dim_disposition` LIMIT 0"
+  - id: "smoke-dm-fact_interaction"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.fact_interaction` LIMIT 0"
+  - id: "smoke-dm-fact_agent_activity"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.fact_agent_activity` LIMIT 0"
+  - id: "smoke-dm-fact_queue_interval"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.fact_queue_interval` LIMIT 0"
+  - id: "smoke-dm-fact_csat_survey"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.fact_csat_survey` LIMIT 0"
+  - id: "smoke-dm-fact_qa_evaluation"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.fact_qa_evaluation` LIMIT 0"
+  - id: "smoke-dm-fact_billing_line"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.fact_billing_line` LIMIT 0"
+  - id: "smoke-dm-fact_adherence_daily"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.fact_adherence_daily` LIMIT 0"
+  - id: "smoke-dm-fact_ticket"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.fact_ticket` LIMIT 0"
+  - id: "smoke-dm-fact_ivr_path"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.fact_ivr_path` LIMIT 0"
+  - id: "smoke-dm-agg_agent_daily"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.agg_agent_daily` LIMIT 0"
+  - id: "smoke-dm-agg_agent_weekly"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.agg_agent_weekly` LIMIT 0"
+  - id: "smoke-dm-agg_program_monthly"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.agg_program_monthly` LIMIT 0"
+  - id: "smoke-dm-agg_queue_hourly"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.agg_queue_hourly` LIMIT 0"
+  - id: "smoke-dm-agg_csat_rollup_monthly"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.agg_csat_rollup_monthly` LIMIT 0"
+  - id: "smoke-dm-agg_billing_monthly"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.agg_billing_monthly` LIMIT 0"
+  - id: "smoke-dm-agg_site_daily"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.agg_site_daily` LIMIT 0"
+  - id: "smoke-dm-vw_org_hierarchy"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.vw_org_hierarchy` LIMIT 0"
+  - id: "smoke-dm-vw_active_agents_ndv"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.vw_active_agents_ndv` LIMIT 0"
+  - id: "smoke-dm-vw_csat_rollup"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.vw_csat_rollup` LIMIT 0"
+  - id: "smoke-dm-vw_call_driver_regex"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.vw_call_driver_regex` LIMIT 0"
+  - id: "smoke-dm-vw_repeat_contact_window"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.vw_repeat_contact_window` LIMIT 0"
+  - id: "smoke-dm-vw_billing_reconciliation"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.vw_billing_reconciliation` LIMIT 0"
+  - id: "smoke-dm-vw_agent_roster_current"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.vw_agent_roster_current` LIMIT 0"
+  - id: "smoke-dm-vw_agent_scorecard"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.vw_agent_scorecard` LIMIT 0"
+  - id: "smoke-dm-vw_attrition_risk"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.vw_attrition_risk` LIMIT 0"
+  - id: "smoke-dm-vw_queue_sla_attainment"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.vw_queue_sla_attainment` LIMIT 0"
+  - id: "smoke-dm-vw_first_contact_resolution"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.vw_first_contact_resolution` LIMIT 0"
+  - id: "smoke-dm-vw_occupancy_utilization"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.vw_occupancy_utilization` LIMIT 0"
+  - id: "smoke-dm-vw_shrinkage_analysis"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.vw_shrinkage_analysis` LIMIT 0"
+  - id: "smoke-dm-vw_program_margin"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.vw_program_margin` LIMIT 0"
+  - id: "smoke-dm-vw_client_executive_summary"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.vw_client_executive_summary` LIMIT 0"
+  - id: "smoke-etl-watermarks"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.watermarks` LIMIT 0"
+  - id: "smoke-etl-dq_results"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.dq_results` LIMIT 0"
+  - id: "smoke-etl-job_audit"
+    mode: measure
+    sql: "SELECT * FROM `${GCP_PROJECT}.${BUILD_DATASET}.job_audit` LIMIT 0"
+  - id: "tier-staging-group-by"
+    mode: measure
+    sql: "SELECT load_date, COUNT(*) AS cnt FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_crm_client` GROUP BY load_date"
+  - id: "tier-ods-group-by"
+    mode: measure
+    sql: "SELECT snapshot_date, COUNT(*) AS cnt FROM `${GCP_PROJECT}.${BUILD_DATASET}.ods_program` GROUP BY snapshot_date"
+  - id: "tier-dm-join"
+    mode: measure
+    sql: "SELECT d.date_key, f.interaction_id FROM `${GCP_PROJECT}.${BUILD_DATASET}.fact_interaction` f JOIN `${GCP_PROJECT}.${BUILD_DATASET}.dim_date`\
+      \ d ON d.date_key = CAST(FORMAT_DATE('%Y%m%d', f._partition_date) AS INT64) LIMIT 0"
+  - id: "tier-etl-control-select"
+    mode: measure
+    sql: "SELECT run_date, check_name, status FROM `${GCP_PROJECT}.${BUILD_DATASET}.dq_results` LIMIT 0"
+- pattern: query_performance
+  id: "partition-cluster-perf"
+  story_id: "NBCS-PERF"
+  queries:
+  - id: "perf-fact-interaction-partition-prune"
+    mode: compare
+    a:
+      sql: "SELECT COUNT(*) FROM `${GCP_PROJECT}.${BUILD_DATASET}.fact_interaction`"
+      dry_run: true
+    b:
+      sql: "SELECT COUNT(*) FROM `${GCP_PROJECT}.${BUILD_DATASET}.fact_interaction` WHERE _partition_date = DATE '2026-01-15'\
+        \ AND channel = 'VOICE'"
+      dry_run: true
+    compare:
+      bytes_scanned: "b <= a"
+  - id: "perf-stg-tel-call-cluster-prune"
+    mode: compare
+    a:
+      sql: "SELECT COUNT(*) FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_tel_call`"
+      dry_run: true
+    b:
+      sql: "SELECT COUNT(*) FROM `${GCP_PROJECT}.${BUILD_DATASET}.stg_tel_call` WHERE call_id = 12345"
+      dry_run: true
+    compare:
+      bytes_scanned: "b <= a"
+  - id: "perf-agg-agent-daily-partition-prune"
+    mode: compare
+    a:
+      sql: "SELECT COUNT(*) FROM `${GCP_PROJECT}.${BUILD_DATASET}.agg_agent_daily`"
+      dry_run: true
+    b:
+      sql: "SELECT COUNT(*) FROM `${GCP_PROJECT}.${BUILD_DATASET}.agg_agent_daily` WHERE _partition_date = DATE '2026-01-15'"
+      dry_run: true
+    compare:
+      bytes_scanned: "b <= a"

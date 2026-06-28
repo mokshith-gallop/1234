@@ -1,0 +1,71 @@
+name: etl_control_schema_conformance
+description: Schema conformance for _etl_control layer — 3 operational tables.
+connections:
+  target:
+    engine: bigquery
+migration:
+  steps:
+  - kind: ddl
+    sql: "ddl/06-etl-control.sql"
+suites:
+- pattern: schema_conformance
+  id: "etl-control-schema"
+  story_id: "NBCS-TARGET-SCHEMA"
+  target_dataset: "${BUILD_DATASET}"
+  expect_table_count: 3
+  tables:
+  - table: watermarks
+    expect_object_type: TABLE
+    columns:
+    - name: source_table
+      type: STRING
+    - name: last_value
+      type: STRING
+    - name: last_run_ts
+      type: TIMESTAMP
+    - name: run_id
+      type: STRING
+  - table: dq_results
+    expect_object_type: TABLE
+    partition_by: run_date
+    columns:
+    - name: run_id
+      type: STRING
+    - name: run_date
+      type: DATE
+    - name: check_name
+      type: STRING
+    - name: target_table
+      type: STRING
+    - name: status
+      type: STRING
+    - name: metric_value
+      type: FLOAT64
+    - name: threshold
+      type: FLOAT64
+    - name: detail_json
+      type: JSON
+    - name: checked_at
+      type: TIMESTAMP
+  - table: job_audit
+    expect_object_type: TABLE
+    partition_by: run_date
+    columns:
+    - name: job_id
+      type: STRING
+    - name: dag_id
+      type: STRING
+    - name: task_id
+      type: STRING
+    - name: run_date
+      type: DATE
+    - name: start_ts
+      type: TIMESTAMP
+    - name: end_ts
+      type: TIMESTAMP
+    - name: status
+      type: STRING
+    - name: rows_affected
+      type: INT64
+    - name: error_message
+      type: STRING

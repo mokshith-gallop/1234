@@ -1,0 +1,1644 @@
+name: staging_schema_conformance
+description: "Schema conformance for staging layer — 45 tables, all columns, partition/cluster/expiration."
+connections:
+  source:
+    engine: impala
+  target:
+    engine: bigquery
+source_setup:
+  location_base: "${SOURCE_WAREHOUSE:-/tmp/dmt_src}"
+  ddl:
+  - "sql/legacy/01-create-databases.hql"
+  - "sql/legacy/02-staging.hql"
+migration:
+  steps:
+  - kind: ddl
+    sql: "ddl/02-staging.sql"
+suites:
+- pattern: schema_conformance
+  id: "staging-schema"
+  story_id: "NBCS-TARGET-SCHEMA"
+  target_dataset: "${BUILD_DATASET}"
+  source_database: staging
+  expect_table_count: 45
+  tables:
+  - table: stg_crm_client
+    source_table: stg_crm_client
+    expect_object_type: TABLE
+    columns:
+    - name: client_id
+      type: INT64
+      source_type: BIGINT
+    - name: client_code
+      type: STRING
+      source_type: STRING
+    - name: client_name
+      type: STRING
+      source_type: STRING
+    - name: industry
+      type: STRING
+      source_type: STRING
+    - name: hq_country
+      type: STRING
+      source_type: STRING
+    - name: status
+      type: STRING
+      source_type: STRING
+    - name: created_ts
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: updated_ts
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_crm_client_contact
+    source_table: stg_crm_client_contact
+    expect_object_type: TABLE
+    columns:
+    - name: contact_id
+      type: INT64
+      source_type: BIGINT
+    - name: client_id
+      type: INT64
+      source_type: BIGINT
+    - name: full_name
+      type: STRING
+      source_type: STRING
+    - name: email
+      type: STRING
+      source_type: STRING
+    - name: phone
+      type: STRING
+      source_type: STRING
+    - name: role
+      type: STRING
+      source_type: STRING
+    - name: is_primary
+      type: BOOL
+      source_type: BOOLEAN
+    - name: created_ts
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_crm_program
+    source_table: stg_crm_program
+    expect_object_type: TABLE
+    columns:
+    - name: program_id
+      type: INT64
+      source_type: BIGINT
+    - name: client_id
+      type: INT64
+      source_type: BIGINT
+    - name: program_code
+      type: STRING
+      source_type: STRING
+    - name: program_name
+      type: STRING
+      source_type: STRING
+    - name: line_of_business
+      type: STRING
+      source_type: STRING
+    - name: channel_mix
+      type: STRING
+      source_type: STRING
+    - name: site_code
+      type: STRING
+      source_type: STRING
+    - name: status
+      type: STRING
+      source_type: STRING
+    - name: go_live_ts
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: updated_ts
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_crm_contract
+    source_table: stg_crm_contract
+    expect_object_type: TABLE
+    columns:
+    - name: contract_id
+      type: INT64
+      source_type: BIGINT
+    - name: client_id
+      type: INT64
+      source_type: BIGINT
+    - name: program_id
+      type: INT64
+      source_type: BIGINT
+    - name: contract_no
+      type: STRING
+      source_type: STRING
+    - name: start_dt
+      type: STRING
+      description: Oracle string YYYYMMDDHH24MISS (legacy)
+      source_type: STRING
+    - name: end_dt
+      type: STRING
+      description: Oracle string YYYYMMDDHH24MISS (legacy)
+      source_type: STRING
+    - name: billing_model
+      type: STRING
+      source_type: STRING
+    - name: currency
+      type: STRING
+      source_type: STRING
+    - name: signed_dt
+      type: STRING
+      description: Oracle string YYYYMMDDHH24MISS (legacy)
+      source_type: STRING
+    - name: status
+      type: STRING
+      source_type: STRING
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_crm_contract_line
+    source_table: stg_crm_contract_line
+    expect_object_type: TABLE
+    columns:
+    - name: contract_line_id
+      type: INT64
+      source_type: BIGINT
+    - name: contract_id
+      type: INT64
+      source_type: BIGINT
+    - name: line_no
+      type: INT64
+      source_type: INT
+    - name: service_code
+      type: STRING
+      source_type: STRING
+    - name: uom
+      type: STRING
+      source_type: STRING
+    - name: unit_rate
+      type: "NUMERIC(12,4)"
+      scale: 4
+      source_type: DECIMAL
+    - name: min_commit
+      type: "NUMERIC(12,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: effective_dt
+      type: STRING
+      description: Oracle string YYYYMMDDHH24MISS (legacy)
+      source_type: STRING
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_crm_sla_target
+    source_table: stg_crm_sla_target
+    expect_object_type: TABLE
+    columns:
+    - name: sla_target_id
+      type: INT64
+      source_type: BIGINT
+    - name: program_id
+      type: INT64
+      source_type: BIGINT
+    - name: queue_id
+      type: INT64
+      source_type: BIGINT
+    - name: metric_code
+      type: STRING
+      source_type: STRING
+    - name: target_value
+      type: "NUMERIC(10,4)"
+      scale: 4
+      source_type: DECIMAL
+    - name: penalty_pct
+      type: "NUMERIC(5,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: effective_ts
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_hr_agent
+    source_table: stg_hr_agent
+    expect_object_type: TABLE
+    columns:
+    - name: agent_id
+      type: INT64
+      source_type: BIGINT
+    - name: employee_no
+      type: STRING
+      source_type: STRING
+    - name: first_name
+      type: STRING
+      source_type: STRING
+    - name: last_name
+      type: STRING
+      source_type: STRING
+    - name: email
+      type: STRING
+      source_type: STRING
+    - name: org_unit_id
+      type: INT64
+      source_type: BIGINT
+    - name: job_grade
+      type: STRING
+      source_type: STRING
+    - name: employment_type
+      type: STRING
+      source_type: STRING
+    - name: hire_ts
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: term_ts
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: status
+      type: STRING
+      source_type: STRING
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_hr_org_unit
+    source_table: stg_hr_org_unit
+    expect_object_type: TABLE
+    columns:
+    - name: org_unit_id
+      type: INT64
+      source_type: BIGINT
+    - name: parent_unit_id
+      type: INT64
+      source_type: BIGINT
+    - name: unit_code
+      type: STRING
+      source_type: STRING
+    - name: unit_name
+      type: STRING
+      source_type: STRING
+    - name: unit_type
+      type: STRING
+      source_type: STRING
+    - name: site_code
+      type: STRING
+      source_type: STRING
+    - name: cost_center
+      type: STRING
+      source_type: STRING
+    - name: created_ts
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_hr_employment_event
+    source_table: stg_hr_employment_event
+    expect_object_type: TABLE
+    columns:
+    - name: event_id
+      type: INT64
+      source_type: BIGINT
+    - name: agent_id
+      type: INT64
+      source_type: BIGINT
+    - name: event_type
+      type: STRING
+      source_type: STRING
+    - name: event_ts
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: from_org_unit_id
+      type: INT64
+      source_type: BIGINT
+    - name: to_org_unit_id
+      type: INT64
+      source_type: BIGINT
+    - name: reason_code
+      type: STRING
+      source_type: STRING
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_hr_skill
+    source_table: stg_hr_skill
+    expect_object_type: TABLE
+    columns:
+    - name: skill_id
+      type: INT64
+      source_type: BIGINT
+    - name: skill_code
+      type: STRING
+      source_type: STRING
+    - name: skill_name
+      type: STRING
+      source_type: STRING
+    - name: skill_family
+      type: STRING
+      source_type: STRING
+    - name: created_ts
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_hr_agent_skill
+    source_table: stg_hr_agent_skill
+    expect_object_type: TABLE
+    columns:
+    - name: agent_skill_id
+      type: INT64
+      source_type: BIGINT
+    - name: agent_id
+      type: INT64
+      source_type: BIGINT
+    - name: skill_id
+      type: INT64
+      source_type: BIGINT
+    - name: proficiency
+      type: INT64
+      source_type: INT
+    - name: certified
+      type: BOOL
+      source_type: BOOLEAN
+    - name: effective_ts
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: expiry_ts
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_wfm_shift
+    source_table: stg_wfm_shift
+    expect_object_type: TABLE
+    columns:
+    - name: shift_id
+      type: INT64
+      source_type: BIGINT
+    - name: shift_code
+      type: STRING
+      source_type: STRING
+    - name: shift_name
+      type: STRING
+      source_type: STRING
+    - name: start_hhmm
+      type: STRING
+      source_type: STRING
+    - name: end_hhmm
+      type: STRING
+      source_type: STRING
+    - name: overnight_flag
+      type: BOOL
+      source_type: BOOLEAN
+    - name: site_code
+      type: STRING
+      source_type: STRING
+    - name: created_epoch
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_wfm_schedule
+    source_table: stg_wfm_schedule
+    expect_object_type: TABLE
+    columns:
+    - name: schedule_id
+      type: INT64
+      source_type: BIGINT
+    - name: agent_id
+      type: INT64
+      source_type: BIGINT
+    - name: shift_id
+      type: INT64
+      source_type: BIGINT
+    - name: sched_date
+      type: STRING
+      source_type: STRING
+    - name: start_epoch
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: end_epoch
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: paid_minutes
+      type: INT64
+      source_type: INT
+    - name: activity_code
+      type: STRING
+      source_type: STRING
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    - name: site_code
+      type: STRING
+      source_type: STRING
+    partition_by: load_date
+    cluster_by:
+    - site_code
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_wfm_adherence_event
+    source_table: stg_wfm_adherence_event
+    expect_object_type: TABLE
+    columns:
+    - name: adherence_event_id
+      type: INT64
+      source_type: BIGINT
+    - name: agent_id
+      type: INT64
+      source_type: BIGINT
+    - name: schedule_id
+      type: INT64
+      source_type: BIGINT
+    - name: exception_type
+      type: STRING
+      source_type: STRING
+    - name: start_epoch
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: end_epoch
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: approved_flag
+      type: BOOL
+      source_type: BOOLEAN
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_wfm_forecast
+    source_table: stg_wfm_forecast
+    expect_object_type: TABLE
+    columns:
+    - name: forecast_id
+      type: INT64
+      source_type: BIGINT
+    - name: queue_id
+      type: INT64
+      source_type: BIGINT
+    - name: interval_start_epoch
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: forecast_volume
+      type: INT64
+      source_type: INT
+    - name: forecast_aht_sec
+      type: INT64
+      source_type: INT
+    - name: required_fte
+      type: "NUMERIC(8,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_wfm_timeoff_request
+    source_table: stg_wfm_timeoff_request
+    expect_object_type: TABLE
+    columns:
+    - name: timeoff_id
+      type: INT64
+      source_type: BIGINT
+    - name: agent_id
+      type: INT64
+      source_type: BIGINT
+    - name: request_epoch
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: start_date
+      type: STRING
+      source_type: STRING
+    - name: end_date
+      type: STRING
+      source_type: STRING
+    - name: timeoff_type
+      type: STRING
+      source_type: STRING
+    - name: status
+      type: STRING
+      source_type: STRING
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_tel_call
+    source_table: stg_tel_call
+    expect_object_type: TABLE
+    columns:
+    - name: call_id
+      type: INT64
+      source_type: BIGINT
+    - name: ani
+      type: STRING
+      source_type: STRING
+    - name: dnis
+      type: STRING
+      source_type: STRING
+    - name: queue_id
+      type: INT64
+      source_type: BIGINT
+    - name: agent_id
+      type: INT64
+      source_type: BIGINT
+    - name: program_id
+      type: INT64
+      source_type: BIGINT
+    - name: start_epoch
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: answer_epoch
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: end_epoch
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: disposition_code
+      type: STRING
+      source_type: STRING
+    - name: direction
+      type: STRING
+      source_type: STRING
+    - name: recording_id
+      type: STRING
+      source_type: STRING
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    cluster_by:
+    - call_id
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_tel_call_segment
+    source_table: stg_tel_call_segment
+    expect_object_type: TABLE
+    columns:
+    - name: segment_id
+      type: INT64
+      source_type: BIGINT
+    - name: call_id
+      type: INT64
+      source_type: BIGINT
+    - name: segment_no
+      type: INT64
+      source_type: INT
+    - name: segment_type
+      type: STRING
+      source_type: STRING
+    - name: start_epoch
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: end_epoch
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: agent_id
+      type: INT64
+      source_type: BIGINT
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_tel_queue
+    source_table: stg_tel_queue
+    expect_object_type: TABLE
+    columns:
+    - name: queue_id
+      type: INT64
+      source_type: BIGINT
+    - name: queue_code
+      type: STRING
+      source_type: STRING
+    - name: queue_name
+      type: STRING
+      source_type: STRING
+    - name: program_id
+      type: INT64
+      source_type: BIGINT
+    - name: media_type
+      type: STRING
+      source_type: STRING
+    - name: priority
+      type: INT64
+      source_type: INT
+    - name: created_epoch
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_tel_agent_state_event
+    source_table: stg_tel_agent_state_event
+    expect_object_type: TABLE
+    columns:
+    - name: state_event_id
+      type: INT64
+      source_type: BIGINT
+    - name: agent_id
+      type: INT64
+      source_type: BIGINT
+    - name: state_code
+      type: STRING
+      source_type: STRING
+    - name: start_epoch
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: end_epoch
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: reason_code
+      type: STRING
+      source_type: STRING
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_tel_disposition_code
+    source_table: stg_tel_disposition_code
+    expect_object_type: TABLE
+    columns:
+    - name: disposition_code
+      type: STRING
+      source_type: STRING
+    - name: disposition_desc
+      type: STRING
+      source_type: STRING
+    - name: category
+      type: STRING
+      source_type: STRING
+    - name: billable_flag
+      type: BOOL
+      source_type: BOOLEAN
+    - name: created_epoch
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_tkt_ticket
+    source_table: stg_tkt_ticket
+    expect_object_type: TABLE
+    columns:
+    - name: ticket_id
+      type: INT64
+      source_type: BIGINT
+    - name: ticket_no
+      type: STRING
+      source_type: STRING
+    - name: program_id
+      type: INT64
+      source_type: BIGINT
+    - name: category_id
+      type: INT64
+      source_type: BIGINT
+    - name: opened_by_agent_id
+      type: INT64
+      source_type: BIGINT
+    - name: assigned_agent_id
+      type: INT64
+      source_type: BIGINT
+    - name: interaction_ref
+      type: STRING
+      source_type: STRING
+    - name: priority
+      type: STRING
+      source_type: STRING
+    - name: status
+      type: STRING
+      source_type: STRING
+    - name: created_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: updated_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_tkt_ticket_event
+    source_table: stg_tkt_ticket_event
+    expect_object_type: TABLE
+    columns:
+    - name: ticket_event_id
+      type: INT64
+      source_type: BIGINT
+    - name: ticket_id
+      type: INT64
+      source_type: BIGINT
+    - name: event_type
+      type: STRING
+      source_type: STRING
+    - name: event_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: actor_agent_id
+      type: INT64
+      source_type: BIGINT
+    - name: old_value
+      type: STRING
+      source_type: STRING
+    - name: new_value
+      type: STRING
+      source_type: STRING
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_tkt_category
+    source_table: stg_tkt_category
+    expect_object_type: TABLE
+    columns:
+    - name: category_id
+      type: INT64
+      source_type: BIGINT
+    - name: category_code
+      type: STRING
+      source_type: STRING
+    - name: category_name
+      type: STRING
+      source_type: STRING
+    - name: sla_hours
+      type: INT64
+      source_type: INT
+    - name: created_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_fin_invoice
+    source_table: stg_fin_invoice
+    expect_object_type: TABLE
+    columns:
+    - name: invoice_id
+      type: INT64
+      source_type: BIGINT
+    - name: invoice_no
+      type: STRING
+      source_type: STRING
+    - name: client_id
+      type: INT64
+      source_type: BIGINT
+    - name: program_id
+      type: INT64
+      source_type: BIGINT
+    - name: period_month
+      type: STRING
+      source_type: STRING
+    - name: issued_ts_sec
+      type: INT64
+      description: "!! name says seconds, VALUES ARE MILLIS !!"
+      source_type: BIGINT
+    - name: due_ts_sec
+      type: INT64
+      description: "!! name says seconds, VALUES ARE MILLIS !!"
+      source_type: BIGINT
+    - name: currency
+      type: STRING
+      source_type: STRING
+    - name: total_amount
+      type: "NUMERIC(14,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: status
+      type: STRING
+      source_type: STRING
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_fin_invoice_line
+    source_table: stg_fin_invoice_line
+    expect_object_type: TABLE
+    columns:
+    - name: invoice_line_id
+      type: INT64
+      source_type: BIGINT
+    - name: invoice_id
+      type: INT64
+      source_type: BIGINT
+    - name: contract_line_id
+      type: INT64
+      source_type: BIGINT
+    - name: qty
+      type: "NUMERIC(12,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: unit_rate
+      type: "NUMERIC(12,4)"
+      scale: 4
+      source_type: DECIMAL
+    - name: line_amount
+      type: "NUMERIC(14,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: adjustment_flag
+      type: BOOL
+      source_type: BOOLEAN
+    - name: created_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_fin_rate_card
+    source_table: stg_fin_rate_card
+    expect_object_type: TABLE
+    columns:
+    - name: rate_card_id
+      type: INT64
+      source_type: BIGINT
+    - name: program_id
+      type: INT64
+      source_type: BIGINT
+    - name: service_code
+      type: STRING
+      source_type: STRING
+    - name: rate
+      type: "NUMERIC(12,4)"
+      scale: 4
+      source_type: DECIMAL
+    - name: currency
+      type: STRING
+      source_type: STRING
+    - name: effective_ts
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: expiry_ts
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: load_date
+      type: DATE
+      source_type: STRING
+    partition_by: load_date
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_fin_timesheet_delta
+    source_table: stg_fin_timesheet_delta
+    expect_object_type: TABLE
+    columns:
+    - name: timesheet_id
+      type: INT64
+      source_type: BIGINT
+    - name: agent_id
+      type: INT64
+      source_type: BIGINT
+    - name: work_date
+      type: STRING
+      source_type: STRING
+    - name: program_id
+      type: INT64
+      source_type: BIGINT
+    - name: billable_minutes
+      type: INT64
+      source_type: INT
+    - name: nonbillable_minutes
+      type: INT64
+      source_type: INT
+    - name: approved_flag
+      type: BOOL
+      source_type: BOOLEAN
+    - name: op
+      type: STRING
+      source_type: STRING
+    - name: change_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: extract_ts
+      type: DATE
+      source_type: STRING
+    partition_by: extract_ts
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_fin_payroll_adj_delta
+    source_table: stg_fin_payroll_adj_delta
+    expect_object_type: TABLE
+    columns:
+    - name: adjustment_id
+      type: INT64
+      source_type: BIGINT
+    - name: agent_id
+      type: INT64
+      source_type: BIGINT
+    - name: period_month
+      type: STRING
+      source_type: STRING
+    - name: adj_type
+      type: STRING
+      source_type: STRING
+    - name: amount
+      type: "NUMERIC(12,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: op
+      type: STRING
+      source_type: STRING
+    - name: change_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: extract_ts
+      type: DATE
+      source_type: STRING
+    partition_by: extract_ts
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_crm_sla_credit_delta
+    source_table: stg_crm_sla_credit_delta
+    expect_object_type: TABLE
+    columns:
+    - name: sla_credit_id
+      type: INT64
+      source_type: BIGINT
+    - name: program_id
+      type: INT64
+      source_type: BIGINT
+    - name: sla_target_id
+      type: INT64
+      source_type: BIGINT
+    - name: period_month
+      type: STRING
+      source_type: STRING
+    - name: credit_amount
+      type: "NUMERIC(12,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: reason
+      type: STRING
+      source_type: STRING
+    - name: op
+      type: STRING
+      source_type: STRING
+    - name: change_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: extract_ts
+      type: DATE
+      source_type: STRING
+    partition_by: extract_ts
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_tel_callback_request_delta
+    source_table: stg_tel_callback_request_delta
+    expect_object_type: TABLE
+    columns:
+    - name: callback_id
+      type: INT64
+      source_type: BIGINT
+    - name: call_id
+      type: INT64
+      source_type: BIGINT
+    - name: queue_id
+      type: INT64
+      source_type: BIGINT
+    - name: requested_epoch
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: scheduled_epoch
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: completed_flag
+      type: BOOL
+      source_type: BOOLEAN
+    - name: op
+      type: STRING
+      source_type: STRING
+    - name: change_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: extract_ts
+      type: DATE
+      source_type: STRING
+    partition_by: extract_ts
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_wfm_shift_swap_delta
+    source_table: stg_wfm_shift_swap_delta
+    expect_object_type: TABLE
+    columns:
+    - name: swap_id
+      type: INT64
+      source_type: BIGINT
+    - name: requesting_agent_id
+      type: INT64
+      source_type: BIGINT
+    - name: accepting_agent_id
+      type: INT64
+      source_type: BIGINT
+    - name: schedule_id
+      type: INT64
+      source_type: BIGINT
+    - name: swap_date
+      type: STRING
+      source_type: STRING
+    - name: status
+      type: STRING
+      source_type: STRING
+    - name: op
+      type: STRING
+      source_type: STRING
+    - name: change_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: extract_ts
+      type: DATE
+      source_type: STRING
+    partition_by: extract_ts
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_tkt_worklog_delta
+    source_table: stg_tkt_worklog_delta
+    expect_object_type: TABLE
+    columns:
+    - name: worklog_id
+      type: INT64
+      source_type: BIGINT
+    - name: ticket_id
+      type: INT64
+      source_type: BIGINT
+    - name: agent_id
+      type: INT64
+      source_type: BIGINT
+    - name: minutes_logged
+      type: INT64
+      source_type: INT
+    - name: log_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: note
+      type: STRING
+      source_type: STRING
+    - name: op
+      type: STRING
+      source_type: STRING
+    - name: change_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: extract_ts
+      type: DATE
+      source_type: STRING
+    partition_by: extract_ts
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_hr_attrition_event_delta
+    source_table: stg_hr_attrition_event_delta
+    expect_object_type: TABLE
+    columns:
+    - name: attrition_event_id
+      type: INT64
+      source_type: BIGINT
+    - name: agent_id
+      type: INT64
+      source_type: BIGINT
+    - name: notice_epoch
+      type: INT64
+      description: epoch SECONDS (legacy)
+      source_type: BIGINT
+    - name: last_day
+      type: STRING
+      source_type: STRING
+    - name: attrition_type
+      type: STRING
+      source_type: STRING
+    - name: reason_code
+      type: STRING
+      source_type: STRING
+    - name: regrettable_flag
+      type: BOOL
+      source_type: BOOLEAN
+    - name: op
+      type: STRING
+      source_type: STRING
+    - name: change_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: extract_ts
+      type: DATE
+      source_type: STRING
+    partition_by: extract_ts
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_fin_rate_card_change_delta
+    source_table: stg_fin_rate_card_change_delta
+    expect_object_type: TABLE
+    columns:
+    - name: rate_change_id
+      type: INT64
+      source_type: BIGINT
+    - name: rate_card_id
+      type: INT64
+      source_type: BIGINT
+    - name: old_rate
+      type: "NUMERIC(12,4)"
+      scale: 4
+      source_type: DECIMAL
+    - name: new_rate
+      type: "NUMERIC(12,4)"
+      scale: 4
+      source_type: DECIMAL
+    - name: change_reason
+      type: STRING
+      source_type: STRING
+    - name: op
+      type: STRING
+      source_type: STRING
+    - name: change_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: extract_ts
+      type: DATE
+      source_type: STRING
+    partition_by: extract_ts
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_file_interaction_export
+    source_table: stg_file_interaction_export
+    expect_object_type: TABLE
+    columns:
+    - name: interaction_ref
+      type: STRING
+      source_type: STRING
+    - name: channel
+      type: STRING
+      source_type: STRING
+    - name: client_interaction_id
+      type: STRING
+      source_type: STRING
+    - name: agent_email
+      type: STRING
+      source_type: STRING
+    - name: start_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: end_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: outcome
+      type: STRING
+      source_type: STRING
+    - name: customer_ref
+      type: STRING
+      source_type: STRING
+    - name: client_code
+      type: STRING
+      source_type: STRING
+    - name: feed_date
+      type: DATE
+      source_type: STRING
+    partition_by: feed_date
+    cluster_by:
+    - client_code
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_file_survey_csat
+    source_table: stg_file_survey_csat
+    expect_object_type: TABLE
+    columns:
+    - name: survey_id
+      type: STRING
+      source_type: STRING
+    - name: interaction_ref
+      type: STRING
+      source_type: STRING
+    - name: survey_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: csat_score
+      type: INT64
+      source_type: INT
+    - name: nps_score
+      type: INT64
+      source_type: INT
+    - name: fcr_claimed
+      type: BOOL
+      source_type: BOOLEAN
+    - name: verbatim
+      type: STRING
+      source_type: STRING
+    - name: client_code
+      type: STRING
+      source_type: STRING
+    - name: feed_date
+      type: DATE
+      source_type: STRING
+    partition_by: feed_date
+    cluster_by:
+    - client_code
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_file_qa_forms
+    source_table: stg_file_qa_forms
+    expect_object_type: TABLE
+    columns:
+    - name: qa_form_id
+      type: STRING
+      source_type: STRING
+    - name: interaction_ref
+      type: STRING
+      source_type: STRING
+    - name: evaluator_email
+      type: STRING
+      source_type: STRING
+    - name: evaluated_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: form_version
+      type: STRING
+      source_type: STRING
+    - name: sections
+      type: "ARRAY<STRUCT<section_code STRING, max_points INT64, scored_points INT64>>"
+      source_type: "ARRAY<STRUCT<SECTION_CODE:STRING,MAX_POINTS:INT,SCORED_POINTS:INT>>"
+    - name: auto_fail
+      type: BOOL
+      source_type: BOOLEAN
+    - name: overall_pct
+      type: "NUMERIC(5,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: client_code
+      type: STRING
+      source_type: STRING
+    - name: feed_date
+      type: DATE
+      source_type: STRING
+    partition_by: feed_date
+    cluster_by:
+    - client_code
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_file_ivr_logs
+    source_table: stg_file_ivr_logs
+    expect_object_type: TABLE
+    columns:
+    - name: event_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: session_ref
+      type: STRING
+      source_type: STRING
+    - name: menu_path
+      type: STRING
+      source_type: STRING
+    - name: key_pressed
+      type: STRING
+      source_type: STRING
+    - name: raw_tail
+      type: STRING
+      source_type: STRING
+    - name: client_code
+      type: STRING
+      source_type: STRING
+    - name: feed_date
+      type: DATE
+      source_type: STRING
+    partition_by: feed_date
+    cluster_by:
+    - client_code
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_file_chat_transcripts
+    source_table: stg_file_chat_transcripts
+    expect_object_type: TABLE
+    columns:
+    - name: chat_ref
+      type: STRING
+      source_type: STRING
+    - name: queue_code
+      type: STRING
+      source_type: STRING
+    - name: agent_email
+      type: STRING
+      source_type: STRING
+    - name: started_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: ended_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: messages
+      type: "ARRAY<STRUCT<sender STRING, ts_ms INT64, text STRING>>"
+      source_type: "ARRAY<STRUCT<SENDER:STRING,TS_MS:BIGINT,TEXT:STRING>>"
+    - name: metadata
+      type: "ARRAY<STRUCT<key STRING, value STRING>>"
+      source_type: "MAP<STRING,STRING>"
+    - name: client_code
+      type: STRING
+      source_type: STRING
+    - name: feed_date
+      type: DATE
+      source_type: STRING
+    partition_by: feed_date
+    cluster_by:
+    - client_code
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_file_roster
+    source_table: stg_file_roster
+    expect_object_type: TABLE
+    columns:
+    - name: employee_no
+      type: STRING
+      source_type: STRING
+    - name: agent_email
+      type: STRING
+      source_type: STRING
+    - name: client_login
+      type: STRING
+      source_type: STRING
+    - name: role_on_program
+      type: STRING
+      source_type: STRING
+    - name: active_flag
+      type: BOOL
+      source_type: BOOLEAN
+    - name: as_of_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: client_code
+      type: STRING
+      source_type: STRING
+    - name: feed_date
+      type: DATE
+      source_type: STRING
+    partition_by: feed_date
+    cluster_by:
+    - client_code
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_file_telco_invoice
+    source_table: stg_file_telco_invoice
+    expect_object_type: TABLE
+    columns:
+    - name: telco_invoice_id
+      type: STRING
+      source_type: STRING
+    - name: carrier
+      type: STRING
+      source_type: STRING
+    - name: circuit_id
+      type: STRING
+      source_type: STRING
+    - name: usage_minutes
+      type: INT64
+      source_type: BIGINT
+    - name: charge_amount
+      type: "NUMERIC(12,2)"
+      scale: 2
+      source_type: DECIMAL
+    - name: bill_period
+      type: STRING
+      source_type: STRING
+    - name: billed_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: client_code
+      type: STRING
+      source_type: STRING
+    - name: feed_date
+      type: DATE
+      source_type: STRING
+    partition_by: feed_date
+    cluster_by:
+    - client_code
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_file_dialer_result
+    source_table: stg_file_dialer_result
+    expect_object_type: TABLE
+    columns:
+    - name: attempt_id
+      type: STRING
+      source_type: STRING
+    - name: campaign_code
+      type: STRING
+      source_type: STRING
+    - name: phone_hash
+      type: STRING
+      source_type: STRING
+    - name: agent_id
+      type: INT64
+      source_type: BIGINT
+    - name: attempt_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: result_code
+      type: STRING
+      source_type: STRING
+    - name: talk_seconds
+      type: INT64
+      source_type: INT
+    - name: client_code
+      type: STRING
+      source_type: STRING
+    - name: feed_date
+      type: DATE
+      source_type: STRING
+    partition_by: feed_date
+    cluster_by:
+    - client_code
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_file_email_interaction
+    source_table: stg_file_email_interaction
+    expect_object_type: TABLE
+    columns:
+    - name: email_ref
+      type: STRING
+      source_type: STRING
+    - name: mailbox
+      type: STRING
+      source_type: STRING
+    - name: agent_email
+      type: STRING
+      source_type: STRING
+    - name: received_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: first_reply_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: resolved_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: subject_category
+      type: STRING
+      source_type: STRING
+    - name: client_code
+      type: STRING
+      source_type: STRING
+    - name: feed_date
+      type: DATE
+      source_type: STRING
+    partition_by: feed_date
+    cluster_by:
+    - client_code
+    table_options:
+      partition_expiration_days: 90
+  - table: stg_file_speech_analytics
+    source_table: stg_file_speech_analytics
+    expect_object_type: TABLE
+    columns:
+    - name: recording_id
+      type: STRING
+      source_type: STRING
+    - name: call_ref
+      type: STRING
+      source_type: STRING
+    - name: analyzed_ms
+      type: INT64
+      description: epoch MILLISECONDS (legacy)
+      source_type: BIGINT
+    - name: sentiment_score
+      type: FLOAT64
+      source_type: DOUBLE
+    - name: silence_pct
+      type: FLOAT64
+      source_type: DOUBLE
+    - name: talk_over_count
+      type: INT64
+      source_type: INT
+    - name: keywords
+      type: "ARRAY<STRING>"
+      source_type: "ARRAY<STRING>"
+    - name: client_code
+      type: STRING
+      source_type: STRING
+    - name: feed_date
+      type: DATE
+      source_type: STRING
+    partition_by: feed_date
+    cluster_by:
+    - client_code
+    table_options:
+      partition_expiration_days: 90
