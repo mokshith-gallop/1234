@@ -51,6 +51,47 @@ migration:
 - Unqualified table names in the SQL resolve to the build dataset (default-dataset
   redirection — do **not** hardcode the dataset in your SQL).
 
+## Source cross-check — stand up the legacy source by applying its DDL (`source_setup`)
+
+`schema_conformance` can cross-check each migrated column's type against the **real legacy
+type**, read from a live source — not a type list you re-typed. The harness stands up the
+legacy source from its own `CREATE TABLE` DDL and reads it back live (Impala/Hive).
+
+Declare a top-level `source_setup` block (sandbox-only — it runs only when `DMT_SOURCE_SETUP`
+is set, so it can never write to a real legacy):
+
+```yaml
+source_setup:
+  location_base: ${SOURCE_WAREHOUSE:-/tmp/dmt_src}   # off-cluster hdfs:// LOCATIONs rehosted here
+  ddl:                                               # the legacy CREATE TABLE files (tables, not views)
+    - sql/legacy/01-create-databases.hql
+    - sql/legacy/02-staging.hql
+```
+
+The harness applies the DDL faithfully, adapting only what our environment cannot host — the
+schema (columns/types) is unchanged: off-cluster `hdfs://` LOCATIONs are rehosted to
+`location_base`; ACID (`transactional='true'`) tables are created non-ACID so a non-ACID read
+engine can read them; statements are split quote-aware (a `;` inside a SerDe regex won't shred
+them). The source is torn down after the run.
+
+Then anchor each `schema_conformance` suite to the live source:
+
+```yaml
+- pattern: schema_conformance
+  target_dataset: ${BUILD_DATASET}
+  source_database: staging              # the REAL legacy database/layer (one suite per layer)
+  tables:
+    - table: ods_invoice
+      source_table: invoice             # BARE legacy table name (no db prefix)
+      columns:
+        - { name: amount, type: NUMERIC, scale: 2, source_type: DECIMAL }  # legacy DECIMAL -> NUMERIC
+```
+
+- Set `source_database` to the real layer (`staging` / `ods` / `dm`) — one suite per layer; the
+  harness reads `source_database.source_table` live and checks the legacy→target type mapping.
+- **Views are not applied** (a recursive-CTE view can't be created in Hive) — cross-check a
+  view's *shape* with `expect_object_type: VIEW` + its columns; the apply path is tables only.
+
 ## SQL inputs — the one convention
 
 Everywhere a pattern takes SQL, it comes in two forms:
